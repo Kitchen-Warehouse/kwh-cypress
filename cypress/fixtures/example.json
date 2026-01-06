@@ -1,0 +1,24 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john.doe@example.com"
+    },
+    {
+      "id": 2,
+      "name": "Jane Smith",
+      "email": "jane.smith@example.com"
+    }
+  ],
+  "testData": {
+    "validCredentials": {
+      "username": "testuser",
+      "password": "testpass123"
+    },
+    "invalidCredentials": {
+      "username": "wronguser",
+      "password": "wrongpass"
+    }
+  }
+}

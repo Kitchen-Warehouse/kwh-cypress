@@ -13,12 +13,19 @@ describe("Product listing Page E2E Tests", () => {
 
     // Verify breadcrumbs exist and contain the path
     cy.get("#kwh-breadcrumbs").should("be.visible");
-    // .and("contain", "Appliances");
-    //   .and('contain', 'Cooking Appliances')
   });
 
+
+
+  it("should display the product filters", () => {
+    // Verify the filters section is visible
+    cy.get("#productListing").should("be.visible");
+  });
+
+
+
   it("should load product tiles and verify the first 3 return 200 status on click", () => {
-    // Check that product items are visible (using common e-commerce class patterns)
+    // Check that product items are visible
     cy.get("#list, .grid")
       .find('.product-card, [data-testid="product-tile"]')
       .should("have.length.at.least", 1)
@@ -34,7 +41,10 @@ describe("Product listing Page E2E Tests", () => {
       });
   });
 
-  it("should contain valid card details", () => {
+  it("should contain valid card image and details", () => {
+    // Check that product card image is visible
+    cy.get(".product-card img").should("be.visible");
+
     // Check that product card content is visible
     cy.get(".detail-section").should("be.visible");
   });

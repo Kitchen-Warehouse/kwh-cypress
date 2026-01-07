@@ -1,11 +1,18 @@
 import "cypress-real-events/support";
 
+// Product Listing Page Tests
 describe("Product listing Page E2E Tests", () => {
+  // Visit the staging site and should hover over appliances menu and verify dropdown appears
   beforeEach(() => {
-    cy.visit(
-      "https://staging.kitchenwarehouse.com.au/appliances/cooking-appliances/air-fryers"
-    );
+    cy.visit("https://staging.kitchenwarehouse.com.au/");
+
+    cy.get('[data-link-text="appliances"]').should("be.visible").realHover();
+
+    cy.get(".gridItem").should("be.visible");
+
+    cy.get('[data-link-text="air fryers"]').should("be.visible").click();
   });
+
 
   it("should display the correct page heading and breadcrumbs", () => {
     // Verify the main H1 heading

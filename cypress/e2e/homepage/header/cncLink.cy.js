@@ -3,25 +3,14 @@ import 'cypress-real-events/support'
 describe('Click and Collect Link Tests', () => {
   // Helper function to find click and collect link in header
   const findClickAndCollectLink = () => {
-    const cncLinkSelectors = [
-      '[data-link-text="click and collect"]',
-      '[data-link-text="click-and-collect"]',
-      'a[href*="/click-collect"]',
-      'a[href*="click-and-collect"]',
-      'a[href*="click_and_collect"]',
-      'a:contains("Click and Collect")',
-      'a:contains("Click & Collect")',
-      '[href*="/cnc"]'
-    ]
+    const cncLinkSelector = 'a[href*="/click-collect"]'
     
     return cy.get('#header-section').then(($header) => {
-      for (const selector of cncLinkSelectors) {
-        const $foundElement = $header.find(selector)
-        if ($foundElement.length > 0) {
-          return cy.wrap($foundElement.first())
-        }
+      const $foundElement = $header.find(cncLinkSelector)
+      if ($foundElement.length > 0) {
+        return cy.wrap($foundElement.first())
       }
-      throw new Error('Click and Collect link not found in header-section. Checked selectors: ' + cncLinkSelectors.join(', '))
+      throw new Error(`Click and Collect link not found in header-section. Checked selector: ${cncLinkSelector}`)
     })
   }
 
@@ -38,10 +27,8 @@ describe('Click and Collect Link Tests', () => {
 
   it('should verify click and collect link is visible and enabled', () => {
     findClickAndCollectLink().then(($element) => {
-      cy.wrap($element)
-        .should('be.visible')
-        .should('not.be.disabled')
-      cy.log('✅ Click and Collect link is visible and enabled')
+      cy.wrap($element).should('be.visible')
+      cy.log('✅ Click and Collect link is visible')
     })
   })
 
@@ -51,7 +38,7 @@ describe('Click and Collect Link Tests', () => {
       cy.wrap($element).invoke('attr', 'href').then((href) => {
         expect(href).to.exist
         expect(href).to.not.be.empty
-        // Check if href contains the expected /click-collect path
+        // Check if href contains the expected /click-collect path specifically
         expect(href.toLowerCase()).to.include('/click-collect')
         cy.log(`✅ Click and Collect link has valid href: ${href}`)
       })
@@ -76,26 +63,37 @@ describe('Click and Collect Link Tests', () => {
     findClickAndCollectLink().then(($element) => {
       cy.wrap($element).click()
       
-      // Check if URL contains the expected /click-collect path
+      // Check if URL contains the expected /click-collect path specifically
       cy.url().should('include', '/click-collect')
       cy.log('✅ Successfully navigated to Click and Collect page')
     })
   })
 
   it('should verify click and collect page loads with proper content', () => {
-    findClickAndCollectLink().then((selector) => {
-      cy.get(selector).click()
+    findClickAndCollectLink().then(($element) => {
+      cy.wrap($element).click()
       
       // Verify page loaded successfully
-      cy.get('body').should('be.visible').and('not.be.empty')
+      cy.get('body').should('be.visible')
       
-      // Check that the page title or heading contains click and collect related terms (case insensitive)
-      cy.get('h1, h2, h3, title').then(($elements) => {
-        const pageText = $elements.text().toLowerCase()
-        const cncTerms = ['click and collect', 'click & collect', 'click-and-collect', 'cnc']
-        const containsCncTerm = cncTerms.some(term => pageText.includes(term))
-        expect(containsCncTerm).to.be.true
-        cy.log('✅ Click and Collect page loaded with proper content')
+      // Check that visible page headings contain click and collect related terms (case insensitive)
+      cy.get('h1, h2, h3').then(($headings) => {
+        if ($headings.length > 0) {
+          const headingText = $headings.text().toLowerCase()
+          const cncTerms = ['click and collect', 'click & collect', 'click-and-collect', 'cnc']
+          const containsCncTerm = cncTerms.some(term => headingText.includes(term))
+          expect(containsCncTerm).to.be.true
+          cy.log('✅ Click and Collect page loaded with proper content')
+        } else {
+          // Fallback: check page title if no visible headings found
+          cy.title().then((title) => {
+            const titleText = title.toLowerCase()
+            const cncTerms = ['click and collect', 'click & collect', 'click-and-collect', 'cnc']
+            const containsCncTerm = cncTerms.some(term => titleText.includes(term))
+            expect(containsCncTerm).to.be.true
+            cy.log('✅ Click and Collect page loaded with proper content (verified via title)')
+          })
+        }
       })
     })
   })

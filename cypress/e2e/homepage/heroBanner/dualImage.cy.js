@@ -1,4 +1,4 @@
-describe('Hero Banner Tests', () => {
+describe('Dual Image Tests', () => {
   beforeEach(() => {
     cy.visit('https://staging.kitchenwarehouse.com.au/')
   })

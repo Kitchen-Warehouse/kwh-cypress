@@ -12,7 +12,7 @@ export const pdpHelpers = {
     cy.get("body", { timeout: PDP_CONFIG.defaultTimeout }).should("be.visible");
   },
 
-  // ❗ Mandatory element → test MUST fail if missing
+  // Mandatory element → test MUST fail if missing
   checkMandatoryElement(selector, elementName) {
     cy.get(selector, { timeout: PDP_CONFIG.defaultTimeout })
       .should("exist")
@@ -25,7 +25,7 @@ export const pdpHelpers = {
       });
   },
 
-  // ✅ Optional element → validate only if present
+  // Optional element → validate only if present
   checkOptionalElement(selector, elementName) {
     cy.get("body").then(($body) => {
       if ($body.find(selector).length) {
@@ -39,7 +39,7 @@ export const pdpHelpers = {
     });
   },
 
-  // 🔗 Optional clickable link → verify navigation + 200 status
+  // Optional clickable link → verify navigation + 200 status
   checkOptionalLink(selector, elementName) {
     cy.get("body").then(($body) => {
       if ($body.find(selector).length) {

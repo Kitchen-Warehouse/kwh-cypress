@@ -20,7 +20,7 @@ module.exports = defineConfig({
     viewportHeight: 1080,
     
     // Default command timeout
-    defaultCommandTimeout: 10000,
+    defaultCommandTimeout: 70000,
     
     setupNodeEvents(on, config) {
       // implement node event listeners here

@@ -1,6 +1,6 @@
 import "cypress-real-events/support";
-
-describe("Product listing Page E2E Tests", () => {
+// Product Listing Page Filter Button Tests
+describe("Product Listing Page Filter Button Tests", () => {
   // Visit the staging site and should hover over appliances menu and verify dropdown appears
   beforeEach(() => {
     cy.visit("https://staging.kitchenwarehouse.com.au/");

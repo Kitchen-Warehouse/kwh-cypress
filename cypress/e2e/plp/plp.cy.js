@@ -13,8 +13,12 @@ describe("Product listing Page E2E Tests", () => {
     cy.get('[data-link-text="air fryers"]').should("be.visible").click();
   });
 
+  afterEach(() => {
+    // 3 seconds after each test
+    cy.wait(3000);
+  });
 
-  it("should display the correct page heading and breadcrumbs", () => {
+  it("should display the correct product listing page heading and breadcrumbs", () => {
     // Verify the main H1 heading
     cy.get("h1").should("be.visible");
 
@@ -26,7 +30,7 @@ describe("Product listing Page E2E Tests", () => {
       });
   });
 
-  it("should display the page heading description", () => {
+  it("should display the product listing page heading description", () => {
     // Verify the description block is visible and not empty
     cy.get("#description").should("be.visible").and("not.be.empty");
   });

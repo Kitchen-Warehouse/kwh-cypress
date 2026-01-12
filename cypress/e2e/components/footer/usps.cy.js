@@ -3,21 +3,17 @@ describe('Footer USPS Component Tests', () => {
     // Visit the homepage or relevant page where footer is present with longer timeout
     cy.visit('https://staging.kitchenwarehouse.com.au/', { timeout: 120000 });
     
-    // Wait for the page to be fully loaded
     cy.get('body').should('be.visible');
     
-    // Wait for footer to exist with longer timeout, then scroll
-    cy.get('.kwh-footer-wrapper', { timeout: 30000 }).should('exist').should('be.visible');
+    cy.get('.kwh-footer-wrapper', { timeout: 30000 }).should('be.visible');
     cy.get('.kwh-footer-wrapper').scrollIntoView({ duration: 1000 });
     
-    // Additional wait to ensure footer is fully rendered
     cy.wait(1000);
   });
 
   it('should find footer wrapper', () => {
     cy.wait(2000);
     cy.get('.kwh-footer-wrapper')
-      .should('exist')
       .should('be.visible')
       .then(($el) => {
         $el.css('border', '3px solid black');
@@ -26,9 +22,7 @@ describe('Footer USPS Component Tests', () => {
   });
 
   it('should find value propositions section', () => {
-    cy.wait(2000);
     cy.get('[data-testid="footer-value-propositions-tastic"]')
-      .should('exist')
       .should('be.visible')
       .then(($el) => {
         $el.css('border', '3px solid blue');
@@ -37,9 +31,7 @@ describe('Footer USPS Component Tests', () => {
   });
 
   it('should find proposition items and validate their content', () => {
-    cy.wait(2000);
     cy.get('[data-testid="proposition-item"]')
-      .should('exist')
       .should('have.length.at.least', 1)
       .each(($item, index) => {
         // Highlight the item
@@ -50,7 +42,6 @@ describe('Footer USPS Component Tests', () => {
         // Validate heading exists within each item
         cy.wrap($item).within(() => {
           cy.get('[data-testid="proposition-item-heading"]')
-            .should('exist')
             .should('not.be.empty')
             .then(($heading) => {
               $heading.css('border', '2px solid red');
@@ -71,7 +62,6 @@ describe('Footer USPS Component Tests', () => {
   });
 
   it('should verify links return 200 status', () => {
-    cy.wait(2000);
     cy.get('[data-testid="proposition-item"]').each(($item, index) => {
       cy.wrap($item).then(($el) => {
         $el.css('border', '3px solid cyan');
@@ -89,7 +79,6 @@ describe('Footer USPS Component Tests', () => {
   });
 
   it('should test all links are clickable', () => {
-    cy.wait(2000);
     cy.get('[data-testid="proposition-item"]').each(($item, index) => {
       // First highlight and get href
       cy.wrap($item).then(($el) => {
@@ -100,7 +89,6 @@ describe('Footer USPS Component Tests', () => {
       
       // Test that the link is clickable - separate chain to ensure element exists
       cy.wrap($item)
-        .should('exist')
         .should('be.visible')
         .should('not.have.attr', 'disabled');
         

@@ -1,6 +1,6 @@
 describe('Footer Tests', () => {
   beforeEach(() => {
-    cy.visit('https://staging.kitchenwarehouse.com.au/');
+    cy.visit('/');
   });
 
   it('should have footer element', () => {

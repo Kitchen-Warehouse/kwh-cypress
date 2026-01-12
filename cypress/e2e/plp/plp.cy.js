@@ -4,7 +4,7 @@ import "cypress-real-events/support";
 describe("Product listing Page E2E Tests", () => {
   // Visit the staging site and should hover over appliances menu and verify dropdown appears
   beforeEach(() => {
-    cy.visit("https://staging.kitchenwarehouse.com.au/");
+    cy.visit('/');
 
     cy.get('[data-link-text="appliances"]').should("be.visible").realHover();
 

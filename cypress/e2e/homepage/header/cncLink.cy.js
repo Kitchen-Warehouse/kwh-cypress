@@ -15,7 +15,7 @@ describe('Click and Collect Link Tests', () => {
   }
 
   beforeEach(() => {
-    cy.visit('https://staging.kitchenwarehouse.com.au/')
+    cy.visit('/')
   })
 
   it('should find click and collect link on homepage', () => {

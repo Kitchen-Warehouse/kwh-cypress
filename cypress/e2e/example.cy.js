@@ -2,7 +2,7 @@ import 'cypress-real-events/support'
 
 describe('Example E2E Test', () => {
   it('should hover over appliances menu and verify dropdown appears', () => {
-    cy.visit('https://staging.kitchenwarehouse.com.au/')
+    cy.visit('/')
 
     cy.get('[data-link-text="appliances"]')
       .should('be.visible')
@@ -12,7 +12,7 @@ describe('Example E2E Test', () => {
   })
 
   it('should validate all mega menu links return 200 status code', () => {
-    cy.visit('https://staging.kitchenwarehouse.com.au/')
+    cy.visit('/')
     
     // Hover over appliances to reveal mega menu
     cy.get('[data-link-text="appliances"]')

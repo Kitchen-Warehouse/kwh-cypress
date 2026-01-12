@@ -1,0 +1,49 @@
+name: Cypress Tests - Manual Trigger
+on:
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: 'Preview URL to test against'
+        required: true
+        default: 'https://staging.kitchenwarehouse.com.au/'
+      pr_number:
+        description: 'PR Number (optional)'
+        required: false
+      repo_name:
+        description: 'Source repository name (optional)'
+        required: false
+      branch_name:
+        description: 'Branch name (optional)'
+        required: false
+
+jobs:
+  cypress-manual:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Display test info
+        run: |
+          echo "🚀 Running Cypress tests manually"
+          echo "📍 Preview URL: ${{ inputs.preview_url }}"
+          echo "📝 PR Number: ${{ inputs.pr_number || 'Not specified' }}"
+          echo "📦 Repository: ${{ inputs.repo_name || 'Not specified' }}"
+          echo "🌿 Branch: ${{ inputs.branch_name || 'Not specified' }}"
+        
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          record: true
+          parallel: true
+        env:
+          CYPRESS_BASE_URL: ${{ inputs.preview_url }}
+          CYPRESS_PR_NUMBER: ${{ inputs.pr_number }}
+          CYPRESS_REPO_NAME: ${{ inputs.repo_name }}
+          CYPRESS_BRANCH_NAME: ${{ inputs.branch_name }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,6 +1,6 @@
 describe('Blog Highlights Component', () => {
   beforeEach(() => {
-    cy.visit('https://staging.kitchenwarehouse.com.au/');
+    cy.visit('/');
   });
 
   it('should display the blog highlights section', () => {

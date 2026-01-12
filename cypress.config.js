@@ -2,8 +2,8 @@ const { defineConfig } = require('cypress')
 
 module.exports = defineConfig({
   e2e: {
-    // Base URL for your application (uncomment and set when you have a running server)
-    // baseUrl: 'http://localhost:3000',
+    // Dynamic base URL - can be overridden by environment variable
+    baseUrl: process.env.CYPRESS_BASE_URL || 'https://staging.kitchenwarehouse.com.au/',
     
     // Where your test files are located
     specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
@@ -24,6 +24,13 @@ module.exports = defineConfig({
     
     setupNodeEvents(on, config) {
       // implement node event listeners here
+      
+      // Make environment variables available to tests
+      config.env.PR_NUMBER = process.env.CYPRESS_PR_NUMBER
+      config.env.REPO_NAME = process.env.CYPRESS_REPO_NAME
+      config.env.BASE_URL = config.baseUrl
+      
+      return config
     },
   },
     projectId: "s15ohg",

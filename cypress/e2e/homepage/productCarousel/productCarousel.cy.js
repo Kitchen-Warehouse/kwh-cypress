@@ -3,7 +3,7 @@ import 'cypress-real-events/support'
 describe('Product Carousel Container', () => {
 	beforeEach(() => {
 		// Update this to visit the correct page where the carousel exists
-		cy.visit('https://staging.kitchenwarehouse.com.au/');
+		cy.visit('/');
 	});
 
 	it('should exist in the DOM', () => {

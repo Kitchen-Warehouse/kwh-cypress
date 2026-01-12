@@ -1,7 +1,7 @@
 describe('Promotional Grid Component', () => {
   beforeEach(() => {
     // Visit the homepage or relevant page where the promotional grid is located
-    cy.visit('https://staging.kitchenwarehouse.com.au/')
+    cy.visit('/')
   })
 
   it('should have a PromotionalSwiper component', () => {

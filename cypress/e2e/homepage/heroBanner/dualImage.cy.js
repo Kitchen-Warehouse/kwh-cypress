@@ -1,6 +1,6 @@
 describe('Dual Image Tests', () => {
   beforeEach(() => {
-    cy.visit('https://staging.kitchenwarehouse.com.au/')
+    cy.visit('/')
   })
 
   it('should find dualImage element', () => {

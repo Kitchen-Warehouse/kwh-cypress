@@ -3,7 +3,8 @@ import 'cypress-real-events/support'
 describe('Brands Link Tests', () => {
 
   beforeEach(() => {
-    cy.visit('https://staging.kitchenwarehouse.com.au/')
+    // Use baseUrl from config, which can be overridden by environment variable
+    cy.visit('/')
   })
 
   // Helper function to find brands link

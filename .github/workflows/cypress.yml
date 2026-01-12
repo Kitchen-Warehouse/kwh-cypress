@@ -1,5 +1,9 @@
 name: Cypress Tests
-on: [push]
+on: 
+  push:
+  repository_dispatch:
+    types: [run-cypress-tests]
+
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
@@ -13,6 +17,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        
+      - name: Set preview URL
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "PREVIEW_URL=${{ github.event.client_payload.preview_url }}" >> $GITHUB_ENV
+            echo "PR_NUMBER=${{ github.event.client_payload.pr_number }}" >> $GITHUB_ENV
+            echo "REPO_NAME=${{ github.event.client_payload.repo_name }}" >> $GITHUB_ENV
+            echo "BRANCH_NAME=${{ github.event.client_payload.branch }}" >> $GITHUB_ENV
+            echo "PACKAGE_PATH=${{ github.event.client_payload.package_path }}" >> $GITHUB_ENV
+            echo "🚀 Running tests for Kitchen Warehouse Frontend PR #${{ github.event.client_payload.pr_number }}"
+            echo "📍 Preview URL: ${{ github.event.client_payload.preview_url }}"
+            echo "🌿 Branch: ${{ github.event.client_payload.branch }}"
+            echo "📦 Package: ${{ github.event.client_payload.package_path }}"
+          else
+            echo "PREVIEW_URL=https://staging.kitchenwarehouse.com.au/" >> $GITHUB_ENV
+            echo "🔄 Running tests against staging URL (regular push event)"
+          fi
+
       - name: Cypress run
         # Uses the official Cypress GitHub action https://github.com/cypress-io/github-action
         uses: cypress-io/github-action@v6
@@ -22,6 +44,10 @@ jobs:
           record: true
           parallel: true # Runs test in parallel using settings above
         env:
+          # Pass the preview URL to Cypress
+          CYPRESS_BASE_URL: ${{ env.PREVIEW_URL }}
+          CYPRESS_PR_NUMBER: ${{ env.PR_NUMBER }}
+          CYPRESS_REPO_NAME: ${{ env.REPO_NAME }}
           # For recording and parallelization to work you must set your CYPRESS_RECORD_KEY
           # in GitHub repo → Settings → Secrets → Actions
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}

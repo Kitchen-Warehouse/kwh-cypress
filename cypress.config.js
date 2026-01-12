@@ -22,6 +22,12 @@ module.exports = defineConfig({
     // Default command timeout
     defaultCommandTimeout: 10000,
     
+    // Page load timeout
+    pageLoadTimeout: 120000,
+    
+    // Request timeout
+    requestTimeout: 30000,
+    
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },

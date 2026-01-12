@@ -35,15 +35,24 @@ jobs:
           echo "📦 Repository: ${{ inputs.repo_name || 'Not specified' }}"
           echo "🌿 Branch: ${{ inputs.branch_name || 'Not specified' }}"
         
+      - name: Sanitize inputs
+        run: |
+          # Remove leading/trailing whitespace from preview_url
+          SANITIZED_URL=$(echo "${{ inputs.preview_url }}" | xargs)
+          echo "CYPRESS_BASE_URL=$SANITIZED_URL" >> $GITHUB_ENV
+          echo "CYPRESS_PR_NUMBER=${{ inputs.pr_number }}" >> $GITHUB_ENV  
+          echo "CYPRESS_REPO_NAME=${{ inputs.repo_name }}" >> $GITHUB_ENV
+          echo "CYPRESS_BRANCH_NAME=${{ inputs.branch_name }}" >> $GITHUB_ENV
+        
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
           record: true
           parallel: true
         env:
-          CYPRESS_BASE_URL: ${{ inputs.preview_url }}
-          CYPRESS_PR_NUMBER: ${{ inputs.pr_number }}
-          CYPRESS_REPO_NAME: ${{ inputs.repo_name }}
-          CYPRESS_BRANCH_NAME: ${{ inputs.branch_name }}
+          CYPRESS_BASE_URL: ${{ env.CYPRESS_BASE_URL }}
+          CYPRESS_PR_NUMBER: ${{ env.CYPRESS_PR_NUMBER }}
+          CYPRESS_REPO_NAME: ${{ env.CYPRESS_REPO_NAME }}
+          CYPRESS_BRANCH_NAME: ${{ env.CYPRESS_BRANCH_NAME }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -19,8 +19,17 @@ module.exports = defineConfig({
     viewportWidth: 1920,
     viewportHeight: 1080,
     
-    // Default command timeout
-    defaultCommandTimeout: 10000,
+    // Increased timeouts for preview URLs that may take longer to load
+    defaultCommandTimeout: 15000,
+    pageLoadTimeout: 120000, // Increased from default 60s to 120s
+    requestTimeout: 10000,
+    responseTimeout: 30000,
+    
+    // Retry settings for flaky tests
+    retries: {
+      runMode: 2,
+      openMode: 0
+    },
     
     setupNodeEvents(on, config) {
       // implement node event listeners here

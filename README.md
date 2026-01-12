@@ -102,5 +102,5 @@ npm run cypress:run
 You can set different base URLs for different environments:
 
 ```bash
-CYPRESS_baseUrl=https://staging.example.com npm run cypress:run
+CYPRESS_baseUrl=https://staging.example.com npm run cypress:run.
 ```

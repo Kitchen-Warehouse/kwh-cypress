@@ -3,9 +3,10 @@ on:
   workflow_dispatch:
     inputs:
       preview_url:
-        description: 'Preview URL to test against'
+        description: 'Dynamic Preview URL to test against (e.g., Vercel/Netlify preview)'
         required: true
         default: 'https://staging.kitchenwarehouse.com.au/'
+        type: string
       pr_number:
         description: 'PR Number (optional)'
         required: false

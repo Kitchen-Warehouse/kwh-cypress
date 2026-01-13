@@ -22,7 +22,7 @@ jobs:
         run: |
           PREVIEW_URL=""
           
-          # Method 1: Check if triggered by repository_dispatch (cross-repo trigger)
+          # Method 1: Repository dispatch with dynamic preview URL (primary method)
           if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
             SANITIZED_URL=$(echo "${{ github.event.client_payload.preview_url }}" | xargs)
             if [ -n "$SANITIZED_URL" ]; then
@@ -31,39 +31,38 @@ jobs:
               echo "REPO_NAME=${{ github.event.client_payload.repo_name }}" >> $GITHUB_ENV
               echo "BRANCH_NAME=${{ github.event.client_payload.branch }}" >> $GITHUB_ENV
               echo "PACKAGE_PATH=${{ github.event.client_payload.package_path }}" >> $GITHUB_ENV
-              echo "🚀 Using preview URL from repository dispatch: $PREVIEW_URL"
+              echo "🚀 Using dynamic preview URL from cross-repo trigger: $PREVIEW_URL"
               echo "📝 PR #${{ github.event.client_payload.pr_number }} from ${{ github.event.client_payload.repo_name }}"
             fi
           fi
           
-          # Method 2: Check if preview URL is set as environment variable (for manual testing)
-          if [ -z "$PREVIEW_URL" ] && [ -n "${{ vars.PREVIEW_URL }}" ]; then
-            PREVIEW_URL="${{ vars.PREVIEW_URL }}"
-            echo "🔧 Using preview URL from repository variable: $PREVIEW_URL"
+          # Method 2: Runtime environment variable (for manual/API triggers)
+          if [ -z "$PREVIEW_URL" ] && [ -n "$CYPRESS_PREVIEW_URL" ]; then
+            PREVIEW_URL="$CYPRESS_PREVIEW_URL"
+            echo "🔧 Using dynamic preview URL from runtime environment: $PREVIEW_URL"
           fi
           
-          # Method 3: Check if preview URL is set as secret (for manual testing)
-          if [ -z "$PREVIEW_URL" ] && [ -n "${{ secrets.PREVIEW_URL }}" ]; then
-            PREVIEW_URL="${{ secrets.PREVIEW_URL }}"
-            echo "🔐 Using preview URL from repository secret: $PREVIEW_URL"
+          # Method 3: Workflow dispatch input (for manual triggers with dynamic URL)
+          if [ -z "$PREVIEW_URL" ] && [ -n "${{ github.event.inputs.preview_url }}" ]; then
+            PREVIEW_URL="${{ github.event.inputs.preview_url }}"
+            echo "📝 Using dynamic preview URL from workflow input: $PREVIEW_URL"
           fi
           
-          # Method 4: Hardcoded preview URL for testing (temporary)
-          if [ -z "$PREVIEW_URL" ] && [ "${{ github.event_name }}" != "repository_dispatch" ]; then
-            # Uncomment the line below to use hardcoded Vercel URL for testing
-            PREVIEW_URL="https://cypress-cross-repo-workflow-q5hobtht1-jjt-ech.vercel.app/"
-            echo "🧪 Using hardcoded preview URL for testing: $PREVIEW_URL"
+          # Method 4: Extract from deployment context (if available)
+          if [ -z "$PREVIEW_URL" ] && [ -n "${{ github.event.deployment.payload.web_url }}" ]; then
+            PREVIEW_URL="${{ github.event.deployment.payload.web_url }}"
+            echo "🚀 Using dynamic preview URL from deployment event: $PREVIEW_URL"
           fi
           
-          # Method 5: Fallback to staging URL
+          # Fallback: Use staging URL only if no dynamic preview URL found
           if [ -z "$PREVIEW_URL" ]; then
             PREVIEW_URL="https://staging.kitchenwarehouse.com.au/"
-            echo "🔄 Using staging URL as fallback: $PREVIEW_URL"
+            echo "🔄 No dynamic preview URL found, using staging fallback: $PREVIEW_URL"
           fi
           
           # Set the final URL
           echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_ENV
-          echo "📍 Final URL: $PREVIEW_URL"
+          echo "📍 Final dynamic URL: $PREVIEW_URL"
 
       - name: Validate preview URL accessibility
         if: contains(env.PREVIEW_URL, 'preview')

@@ -1,23 +1,13 @@
+import { footerHelpers } from './footer-config';
+
 describe('Footer USPS Component Tests', () => {
   beforeEach(() => {
-    // Visit the homepage or relevant page where footer is present with longer timeout
-    cy.visit('https://staging.kitchenwarehouse.com.au/', { timeout: 120000 });
-    
-    cy.get('body').should('be.visible');
-    
-    cy.get('.kwh-footer-wrapper', { timeout: 30000 }).should('be.visible');
-    cy.get('.kwh-footer-wrapper').scrollIntoView({ duration: 1000 });
-    
-    cy.wait(1000);
+    footerHelpers.visitPageWithFooter();
   });
 
   it('should find footer wrapper', () => {
     cy.wait(2000);
-    cy.get('.kwh-footer-wrapper')
-      .should('be.visible')
-      .then(($el) => {
-        $el.css('border', '3px solid black');
-      });
+    footerHelpers.verifyFooterWrapper();
     cy.wait(2000);
   });
 

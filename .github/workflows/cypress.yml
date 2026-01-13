@@ -20,22 +20,50 @@ jobs:
         
       - name: Set preview URL
         run: |
+          PREVIEW_URL=""
+          
+          # Method 1: Check if triggered by repository_dispatch (cross-repo trigger)
           if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
-            # Sanitize the preview URL to remove any leading/trailing whitespace
             SANITIZED_URL=$(echo "${{ github.event.client_payload.preview_url }}" | xargs)
-            echo "PREVIEW_URL=$SANITIZED_URL" >> $GITHUB_ENV
-            echo "PR_NUMBER=${{ github.event.client_payload.pr_number }}" >> $GITHUB_ENV
-            echo "REPO_NAME=${{ github.event.client_payload.repo_name }}" >> $GITHUB_ENV
-            echo "BRANCH_NAME=${{ github.event.client_payload.branch }}" >> $GITHUB_ENV
-            echo "PACKAGE_PATH=${{ github.event.client_payload.package_path }}" >> $GITHUB_ENV
-            echo "🚀 Running tests for Kitchen Warehouse Frontend PR #${{ github.event.client_payload.pr_number }}"
-            echo "📍 Preview URL: $SANITIZED_URL"
-            echo "🌿 Branch: ${{ github.event.client_payload.branch }}"
-            echo "📦 Package: ${{ github.event.client_payload.package_path }}"
-          else
-            echo "PREVIEW_URL=https://staging.kitchenwarehouse.com.au/" >> $GITHUB_ENV
-            echo "🔄 Running tests against staging URL (regular push event)"
+            if [ -n "$SANITIZED_URL" ]; then
+              PREVIEW_URL="$SANITIZED_URL"
+              echo "PR_NUMBER=${{ github.event.client_payload.pr_number }}" >> $GITHUB_ENV
+              echo "REPO_NAME=${{ github.event.client_payload.repo_name }}" >> $GITHUB_ENV
+              echo "BRANCH_NAME=${{ github.event.client_payload.branch }}" >> $GITHUB_ENV
+              echo "PACKAGE_PATH=${{ github.event.client_payload.package_path }}" >> $GITHUB_ENV
+              echo "🚀 Using preview URL from repository dispatch: $PREVIEW_URL"
+              echo "📝 PR #${{ github.event.client_payload.pr_number }} from ${{ github.event.client_payload.repo_name }}"
+            fi
           fi
+          
+          # Method 2: Check if preview URL is set as environment variable (for manual testing)
+          if [ -z "$PREVIEW_URL" ] && [ -n "${{ vars.PREVIEW_URL }}" ]; then
+            PREVIEW_URL="${{ vars.PREVIEW_URL }}"
+            echo "🔧 Using preview URL from repository variable: $PREVIEW_URL"
+          fi
+          
+          # Method 3: Check if preview URL is set as secret (for manual testing)
+          if [ -z "$PREVIEW_URL" ] && [ -n "${{ secrets.PREVIEW_URL }}" ]; then
+            PREVIEW_URL="${{ secrets.PREVIEW_URL }}"
+            echo "🔐 Using preview URL from repository secret: $PREVIEW_URL"
+          fi
+          
+          # Method 4: Hardcoded preview URL for testing (temporary)
+          if [ -z "$PREVIEW_URL" ] && [ "${{ github.event_name }}" != "repository_dispatch" ]; then
+            # Uncomment the line below to use hardcoded Vercel URL for testing
+            PREVIEW_URL="https://cypress-cross-repo-workflow-q5hobtht1-jjt-ech.vercel.app/"
+            echo "🧪 Using hardcoded preview URL for testing: $PREVIEW_URL"
+          fi
+          
+          # Method 5: Fallback to staging URL
+          if [ -z "$PREVIEW_URL" ]; then
+            PREVIEW_URL="https://staging.kitchenwarehouse.com.au/"
+            echo "🔄 Using staging URL as fallback: $PREVIEW_URL"
+          fi
+          
+          # Set the final URL
+          echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_ENV
+          echo "📍 Final URL: $PREVIEW_URL"
 
       - name: Validate preview URL accessibility
         if: contains(env.PREVIEW_URL, 'preview')

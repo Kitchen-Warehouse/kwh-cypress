@@ -1,0 +1,59 @@
+name: Cypress Tests - Manual Trigger
+on:
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: 'Dynamic Preview URL to test against (e.g., Vercel/Netlify preview)'
+        required: true
+        default: 'https://staging.kitchenwarehouse.com.au/'
+        type: string
+      pr_number:
+        description: 'PR Number (optional)'
+        required: false
+      repo_name:
+        description: 'Source repository name (optional)'
+        required: false
+      branch_name:
+        description: 'Branch name (optional)'
+        required: false
+
+jobs:
+  cypress-manual:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Display test info
+        run: |
+          echo "🚀 Running Cypress tests manually"
+          echo "📍 Preview URL: ${{ inputs.preview_url }}"
+          echo "📝 PR Number: ${{ inputs.pr_number || 'Not specified' }}"
+          echo "📦 Repository: ${{ inputs.repo_name || 'Not specified' }}"
+          echo "🌿 Branch: ${{ inputs.branch_name || 'Not specified' }}"
+        
+      - name: Sanitize inputs
+        run: |
+          # Remove leading/trailing whitespace from preview_url
+          SANITIZED_URL=$(echo "${{ inputs.preview_url }}" | xargs)
+          echo "CYPRESS_BASE_URL=$SANITIZED_URL" >> $GITHUB_ENV
+          echo "CYPRESS_PR_NUMBER=${{ inputs.pr_number }}" >> $GITHUB_ENV  
+          echo "CYPRESS_REPO_NAME=${{ inputs.repo_name }}" >> $GITHUB_ENV
+          echo "CYPRESS_BRANCH_NAME=${{ inputs.branch_name }}" >> $GITHUB_ENV
+        
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          record: true
+          parallel: true
+        env:
+          CYPRESS_BASE_URL: ${{ env.CYPRESS_BASE_URL }}
+          CYPRESS_PR_NUMBER: ${{ env.CYPRESS_PR_NUMBER }}
+          CYPRESS_REPO_NAME: ${{ env.CYPRESS_REPO_NAME }}
+          CYPRESS_BRANCH_NAME: ${{ env.CYPRESS_BRANCH_NAME }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

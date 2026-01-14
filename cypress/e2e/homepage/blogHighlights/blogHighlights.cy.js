@@ -1,6 +1,39 @@
 describe('Blog Highlights Component', () => {
   beforeEach(() => {
-    cy.visit('https://staging.kitchenwarehouse.com.au/');
+    // Log the current base URL for debugging
+    cy.log(`🌐 Testing against: ${Cypress.config('baseUrl')}`);
+    
+    // Check if we're testing a preview URL and handle it appropriately
+    const baseUrl = Cypress.config('baseUrl');
+    if (baseUrl.includes('deploy-preview') || baseUrl.includes('preview')) {
+      cy.log('🔍 Preview URL detected - using enhanced visit with retry');
+      
+      // For preview URLs, check accessibility first then visit with retry
+      cy.checkUrlAccessible(baseUrl).then((accessible) => {
+        if (accessible) {
+          cy.visitWithRetry('/', { retries: 3, retryDelay: 15000 });
+        } else {
+          // If preview URL not accessible, wait longer and try again
+          cy.log('⏳ Preview URL not ready, waiting 30s before retry...');
+          cy.wait(30000);
+          cy.visitWithRetry('/', { retries: 2, retryDelay: 20000 });
+        }
+      });
+    } else {
+      // For staging/production URLs, use normal visit
+      cy.log('🏠 Using standard visit for staging/production URL');
+      cy.visit('/', { timeout: 90000 });
+    }
+    
+    // Wait for page to be fully loaded
+    cy.get('body').should('be.visible');
+    
+    // Wait for any loading indicators to disappear (but don't fail if they don't exist)
+    cy.get('body').then(($body) => {
+      if ($body.find('[data-testid="loading"], .loading, .spinner').length > 0) {
+        cy.get('[data-testid="loading"], .loading, .spinner', { timeout: 30000 }).should('not.exist');
+      }
+    });
   });
 
   it('should display the blog highlights section', () => {

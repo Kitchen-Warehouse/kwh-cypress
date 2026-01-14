@@ -3,7 +3,16 @@ import 'cypress-real-events/support'
 describe('Brands Link Tests', () => {
 
   beforeEach(() => {
-    cy.visit('https://staging.kitchenwarehouse.com.au/')
+    // Use baseUrl from config, which can be overridden by environment variable
+    cy.visit('/', { failOnStatusCode: false })
+    
+    // Check if we got an authentication error
+    cy.get('body').then(($body) => {
+      if ($body.text().includes('401') || $body.text().includes('Unauthorized')) {
+        cy.log('❌ Preview URL requires authentication or has expired')
+        throw new Error('Preview URL is not accessible - may need authentication or has expired')
+      }
+    })
   })
 
   // Helper function to find brands link

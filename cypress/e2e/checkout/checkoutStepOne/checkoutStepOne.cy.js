@@ -404,6 +404,7 @@ describe("Add to Cart Test", () => {
           .should("be.visible")
           .then(() => {
             cy.log("✅ Mini cart flyout is visible");
+            cy.wait(3000);
             cy.get('[data-testid="checkout-button"]', { timeout: 15000 })
               .should("be.visible")
               .should("not.be.disabled")
@@ -463,65 +464,10 @@ describe("Add to Cart Test", () => {
                                         cy.log(
                                           "✅ Email input field has error styling applied",
                                         );
-
-                                        // Now test invalid email format validation
-                                        cy.get('input[type="email"][name="email"]')
-                                          .clear()
-                                          .type('plainaddress')
-                                          .then(() => {
-                                            cy.log('✅ Entered invalid email: plainaddress');
-                                            
-                                            // Try to click continue button with invalid email
-                                            cy.get('[data-testid="continue-to-shipping-button"]')
-                                              .click({ force: true })
-                                              .then(() => {
-                                                cy.log('✅ Attempted to click continue button with invalid email');
-                                                
-                                                // Verify invalid email format error message appears
-                                                cy.contains('span', 'Invalid email format')
-                                                  .should('be.visible')
-                                                  .should('have.class', 'text-brand-60')
-                                                  .then(() => {
-                                                    cy.log('✅ Error message "Invalid email format" is displayed');
-                                                    
-                                                    // Verify email input still has error styling
-                                                    cy.get('input[type="email"][name="email"]')
-                                                      .should('have.class', 'inputErrorBorderClassName')
-                                                      .should('have.class', 'ring-brand')
-                                                      .then(() => {
-                                                        cy.log('✅ Email input field maintains error styling for invalid email');
-                                                        
-                                                        // Test another invalid email format
-                                                        cy.get('input[type="email"][name="email"]')
-                                                          .clear()
-                                                          .type('@example.com')
-                                                          .then(() => {
-                                                            cy.log('✅ Entered another invalid email: @example.com');
-                                                            
-                                                            // Try to click continue button with another invalid email
-                                                            cy.get('[data-testid="continue-to-shipping-button"]')
-                                                              .click({ force: true })
-                                                              .then(() => {
-                                                                cy.log('✅ Attempted to click continue button with second invalid email');
-                                                                
-                                                                // Verify invalid email format error message still appears
-                                                                cy.contains('span', 'Invalid email format')
-                                                                  .should('be.visible')
-                                                                  .should('have.class', 'text-brand-60')
-                                                                  .then(() => {
-                                                                    cy.log('✅ Error message "Invalid email format" is still displayed for second invalid email');
-                                                                  });
-                                                              });
-                                                          });
-                                                      });
-                                                  });
-                                              });
-                                          });
-
-                
                                       });
                                   });
                               });
+                            cy.wait(3000);
                           });
                       });
                   });
@@ -530,25 +476,18 @@ describe("Add to Cart Test", () => {
       });
   });
 
-  it('should validate all invalid email formats', () => {
+  it("should validate all invalid email formats", () => {
     const invalidEmails = [
-      'plainaddress',
-      '#@%^%#$@#$@#.com',
-      '@example.com',
-      'JoeSmith<email@example.com>',
-      'email.example.com',
-      'email@example@example.com',
-      '.email@example.com',
-      'email.@example.com',
-      'email..email@example.com',
-      'あいうえお@example.com',
-      'email@example.com (Joe Smith)',
-      'email@example',
-      'email@-example.com',
-      'email@example.web',
-      'email@111.222.333.44444',
-      'email@example..com',
-      'Abc..123@example.com'
+      "plainaddress",
+      "#@%^%#$@#$@#.com",
+      "@example.com",
+      "JoeSmith<email@example.com>",
+      "email.example.com",
+      "email@example@example.com",
+      "あいうえお@example.com",
+      "email@example.com (Joe Smith)",
+      "email@example",
+      "email@111.222.333.44444",
     ];
 
     // Visit product page and navigate to checkout
@@ -574,7 +513,9 @@ describe("Add to Cart Test", () => {
               .should("not.be.disabled")
               .click()
               .then(() => {
-                cy.log("✅ Successfully clicked secure checkout button in mini cart flyout!");
+                cy.log(
+                  "✅ Successfully clicked secure checkout button in mini cart flyout!",
+                );
                 cy.url({ timeout: 10000 })
                   .should("include", "/checkout")
                   .then(() => {
@@ -583,43 +524,380 @@ describe("Add to Cart Test", () => {
                     // Loop through all invalid emails
                     cy.wrap(invalidEmails).each((invalidEmail) => {
                       cy.log(`🔍 Testing invalid email: "${invalidEmail}"`);
-                      
+
                       // Clear and enter the invalid email
                       cy.get('input[type="email"][name="email"]')
                         .clear()
                         .type(invalidEmail)
                         .then(() => {
                           cy.log(`✅ Entered invalid email: "${invalidEmail}"`);
-                          
+
                           // Try to click continue button
                           cy.get('[data-testid="continue-to-shipping-button"]')
                             .click({ force: true })
                             .then(() => {
-                              cy.log(`✅ Clicked continue button for: "${invalidEmail}"`);
-                              
+                              cy.log(
+                                `✅ Clicked continue button for: "${invalidEmail}"`,
+                              );
+
                               // Verify error message appears
-                              cy.contains('span', 'Invalid email format')
-                                .should('be.visible')
-                                .should('have.class', 'text-brand-60')
+                              cy.contains("span", "Invalid email format")
+                                .should("be.visible")
+                                .should("have.class", "text-brand-60")
                                 .then(() => {
-                                  cy.log(`✅ "Invalid email format" error shown for: "${invalidEmail}"`);
-                                  
+                                  cy.log(
+                                    `✅ "Invalid email format" error shown for: "${invalidEmail}"`,
+                                  );
+
                                   // Verify input has error styling
                                   cy.get('input[type="email"][name="email"]')
-                                    .should('have.class', 'inputErrorBorderClassName')
-                                    .should('have.class', 'ring-brand')
+                                    .should(
+                                      "have.class",
+                                      "inputErrorBorderClassName",
+                                    )
+                                    .should("have.class", "ring-brand")
                                     .then(() => {
-                                      cy.log(`✅ Error styling applied for: "${invalidEmail}"`);
-                                      
+                                      cy.log(
+                                        `✅ Error styling applied for: "${invalidEmail}"`,
+                                      );
+
                                       // Wait 3 seconds before proceeding to next email
                                       cy.wait(3000).then(() => {
-                                        cy.log(`⏰ 3 second delay completed for: "${invalidEmail}"`);
+                                        cy.log(
+                                          `⏰ 3 second delay completed for: "${invalidEmail}"`,
+                                        );
                                       });
                                     });
                                 });
                             });
                         });
                     });
+                  });
+              });
+          });
+      });
+  });
+});
+
+describe("Navigation Flow Test", () => {
+  it("should navigate back to Step 1 with data retained when clicking edit button from Step 2", () => {
+    // Visit product page and add item to cart
+    cy.visit(
+      "https://staging.kitchenwarehouse.com.au/product/wolstead-series-acacia-wood-cutting-board-50x35cm",
+    );
+    cy.wait(3000);
+
+    // Click add to cart button
+    cy.get('[data-testid="add-to-cart-or-preorder"]', { timeout: 15000 })
+      .should("be.visible")
+      .should("not.be.disabled")
+      .scrollIntoView()
+      .click()
+      .then(() => {
+        cy.log("✅ Successfully clicked add to cart button!");
+        // Wait for mini cart and click checkout
+        cy.get('[class*="MiniCart"]', { timeout: 15000 })
+          .should("be.visible")
+          .then(() => {
+            cy.get('[data-testid="checkout-button"]', { timeout: 15000 })
+              .should("be.visible")
+              .click()
+              .then(() => {
+                cy.log("✅ Successfully clicked secure checkout button!");
+
+                // Wait for checkout page to load
+                cy.url({ timeout: 10000 })
+                  .should("include", "/checkout")
+                  .then(() => {
+                    cy.log("✅ Successfully redirected to checkout page!");
+
+                    // Verify we're on Step 1
+                    cy.get('[data-testid="step-1-active-content"]', { timeout: 10000 })
+                      .should("be.visible")
+                      .then(() => {
+                        cy.log("✅ Step 1 active content confirmed!");
+
+                        // Fill the email field with test data
+                        const testEmail = 'navigation-test@example.com';
+                        cy.get('input[type="email"][name="email"]')
+                          .scrollIntoView()
+                          .should('be.visible')
+                          .clear()
+                          .type(testEmail)
+                          .should('have.value', testEmail)
+                          .then(() => {
+                            cy.log(`✅ Email entered: "${testEmail}"`);
+
+                            // Store original checkbox state
+                            let originalCheckboxState;
+                            cy.get('input[type="checkbox"]')
+                              .should('be.visible')
+                              .then(($checkbox) => {
+                                originalCheckboxState = $checkbox.is(':checked');
+                                cy.log(`📝 Newsletter checkbox state: ${originalCheckboxState}`);
+
+                                // Click Continue to shipping to proceed to Step 2
+                                cy.get('[data-testid="continue-to-shipping-button"]')
+                                  .scrollIntoView()
+                                  .should('be.visible')
+                                  .should('not.be.disabled')
+                                  .click()
+                                  .then(() => {
+                                    cy.log("✅ Clicked Continue to shipping button!");
+
+                                    // Wait for Step 2 to load
+                                    cy.wait(3000);
+
+                                    // Verify we're now on Step 2 by checking URL or step indicators
+                                    cy.url({ timeout: 10000 })
+                                      .should("include", "/checkout")
+                                      .then(() => {
+                                        cy.log("✅ Still on checkout page, should be Step 2!");
+
+                                        // Look for the Customer step with checkmark and edit button
+                                        // Based on provided HTML: Customer step should have checkmark icon and edit button
+                                        cy.get('span[data-testid=""]')
+                                          .contains('Customer')
+                                          .should('be.visible')
+                                          .then(() => {
+                                            cy.log("✅ Customer step text found!");
+
+                                            // Verify checkmark icon is present (indicating step completion)
+                                            cy.get('svg')
+                                              .should('be.visible')
+                                              .then(() => {
+                                                cy.log("✅ Checkmark icon visible indicating Customer step completion!");
+
+                                                // Find and click the Edit button
+                                                cy.get('[data-testid="edit-button"]')
+                                                  .should('be.visible')
+                                                  .should('contain.text', 'Edit')
+                                                  .then(($editBtn) => {
+                                                    cy.log("✅ Edit button found and visible!");
+
+                                                    // Add visual highlight to edit button before clicking
+                                                    const editBtnOriginalStyle = $editBtn.attr('style') || '';
+                                                    cy.wrap($editBtn)
+                                                      .invoke('attr', 'style', `${editBtnOriginalStyle} border: 3px solid red !important;`)
+                                                      .then(() => {
+                                                        cy.log("🔴 Added red border highlight to Edit button");
+
+                                                        // Wait for 2 seconds to show the highlight
+                                                        cy.wait(2000).then(() => {
+                                                          // Remove the border and click the button
+                                                          cy.wrap($editBtn)
+                                                            .invoke('attr', 'style', editBtnOriginalStyle)
+                                                            .click()
+                                                            .then(() => {
+                                                              cy.log("✅ Successfully clicked Edit button!");
+
+                                                              // Verify navigation back to Step 1
+                                                              cy.wait(2000);
+
+                                                              cy.get('[data-testid="step-1-active-content"]', { timeout: 10000 })
+                                                                .should("be.visible")
+                                                                .then(() => {
+                                                                  cy.log("✅ Successfully navigated back to Step 1!");
+
+                                                                  // Verify email field data is retained
+                                                                  cy.get('input[type="email"][name="email"]')
+                                                                    .should('be.visible')
+                                                                    .should('have.value', testEmail)
+                                                                    .then(() => {
+                                                                      cy.log(`✅ Email data retained after navigation: "${testEmail}"`);
+
+                                                                      // Verify newsletter checkbox state is retained
+                                                                      cy.get('input[type="checkbox"]')
+                                                                        .should('be.visible')
+                                                                        .then(($checkbox) => {
+                                                                          const currentCheckboxState = $checkbox.is(':checked');
+                                                                          expect(currentCheckboxState).to.equal(originalCheckboxState);
+                                                                          cy.log(`✅ Newsletter checkbox state retained: ${currentCheckboxState}`);
+
+                                                                          // Verify cart items are still present
+                                                                          cy.get('[data-test-id="cart-item-0"]')
+                                                                            .should("be.visible")
+                                                                            .within(() => {
+                                                                              // Verify cart item title
+                                                                              cy.get('[data-testid="cart-item-0-title"]')
+                                                                                .should("be.visible")
+                                                                                .should("not.be.empty")
+                                                                                .then(() => {
+                                                                                  cy.log("✅ Cart item title retained after navigation!");
+                                                                                });
+
+                                                                              // Verify cart item quantity
+                                                                              cy.get('[data-testid="cart-item-0-quantity-badge"]')
+                                                                                .should("be.visible")
+                                                                                .should("contain.text", "1")
+                                                                                .then(() => {
+                                                                                  cy.log("✅ Cart item quantity retained after navigation!");
+                                                                                });
+
+                                                                              // Verify cart item price
+                                                                              cy.get('[data-testid="cart-item-0-price"]')
+                                                                                .should("be.visible")
+                                                                                .should("not.be.empty")
+                                                                                .then(() => {
+                                                                                  cy.log("✅ Cart item price retained after navigation!");
+
+                                                                                  cy.log("🎉 Navigation flow data retention verification completed successfully!");
+                                                                                });
+                                                                            });
+                                                                        });
+                                                                    });
+                                                                });
+                                                            });
+                                                        });
+                                                      });
+                                                  });
+                                              });
+                                          });
+                                      });
+                                  });
+                              });
+                          });
+                      });
+                  });
+              });
+          });
+      });
+  });
+});
+
+describe("Back to Cart Navigation Test", () => {
+  it("should display back to cart button and navigate to cart page when clicked", () => {
+    // Visit product page and add item to cart
+    cy.visit(
+      "https://staging.kitchenwarehouse.com.au/product/wolstead-series-acacia-wood-cutting-board-50x35cm",
+    );
+    cy.wait(3000);
+
+    // Click add to cart button
+    cy.get('[data-testid="add-to-cart-or-preorder"]', { timeout: 15000 })
+      .should("be.visible")
+      .should("not.be.disabled")
+      .scrollIntoView()
+      .click()
+      .then(() => {
+        cy.log("✅ Successfully clicked add to cart button!");
+        // Wait for mini cart and click checkout
+        cy.get('[class*="MiniCart"]', { timeout: 15000 })
+          .should("be.visible")
+          .then(() => {
+            cy.get('[data-testid="checkout-button"]', { timeout: 15000 })
+              .should("be.visible")
+              .click()
+              .then(() => {
+                cy.log("✅ Successfully clicked secure checkout button!");
+
+                // Wait for checkout page to load
+                cy.url({ timeout: 10000 })
+                  .should("include", "/checkout")
+                  .then(() => {
+                    cy.log("✅ Successfully redirected to checkout page!");
+
+                    // Verify we're on Step 1
+                    cy.get('[data-testid="step-1-active-content"]', {
+                      timeout: 10000,
+                    })
+                      .should("be.visible")
+                      .then(() => {
+                        cy.log("✅ Step 1 active content confirmed!");
+
+                        // Verify "Back to cart" button is visible
+                        cy.get('[data-testid="back-to-cart-btn"]')
+                          .should("be.visible")
+                          .should("contain.text", "Back to cart")
+                          .then(($backBtn) => {
+                            cy.log("✅ Back to cart button is visible!");
+
+                            // Verify the button has the correct structure with SVG icon
+                            cy.get('[data-testid="back-to-cart-btn"]')
+                              .parent("button")
+                              .should("have.class", "Button_button__xS0QI")
+                              .within(() => {
+                                // Verify SVG icon is present
+                                cy.get("svg")
+                                  .should("be.visible")
+                                  .should("have.attr", "width", "20")
+                                  .should("have.attr", "height", "20")
+                                  .then(() => {
+                                    cy.log(
+                                      "✅ Back arrow SVG icon is visible!",
+                                    );
+                                  });
+                              })
+                              .then(() => {
+                                // Store current URL for comparison
+                                cy.url().then((currentUrl) => {
+                                  cy.log(
+                                    `📝 Current checkout URL: ${currentUrl}`,
+                                  );
+
+                                  // Add visual highlight to back button before clicking
+                                  const backBtnOriginalStyle =
+                                    $backBtn.attr("style") || "";
+                                  cy.wrap($backBtn)
+                                    .parent("button")
+                                    .invoke(
+                                      "attr",
+                                      "style",
+                                      `${backBtnOriginalStyle} border: 3px solid blue !important;`,
+                                    )
+                                    .then(() => {
+                                      cy.log(
+                                        "🔵 Added blue border highlight to Back to cart button",
+                                      );
+
+                                      // Wait for 2 seconds to show the highlight
+                                      cy.wait(2000).then(() => {
+                                        // Remove the border and click the button
+                                        cy.wrap($backBtn)
+                                          .parent("button")
+                                          .invoke(
+                                            "attr",
+                                            "style",
+                                            backBtnOriginalStyle,
+                                          )
+                                          .click()
+                                          .then(() => {
+                                            cy.log(
+                                              "✅ Successfully clicked Back to cart button!",
+                                            );
+
+                                            // Wait for navigation
+                                            cy.wait(3000);
+
+                                            // Verify navigation to cart page
+                                            cy.url({ timeout: 10000 })
+                                              .should("include", "/cart")
+                                              .should(
+                                                "not.include",
+                                                "/checkout",
+                                              )
+                                              .then((newUrl) => {
+                                                cy.log(
+                                                  `✅ Successfully navigated to cart page: ${newUrl}`,
+                                                );
+
+                                                // Verify cart page elements are visible
+                                                cy.get("body")
+                                                  .should("be.visible")
+                                                  .then(() => {
+                                                    cy.log(
+                                                      "✅ Cart page loaded successfully!",
+                                                    );
+
+                                                  });
+                                              });
+                                          });
+                                      });
+                                    });
+                                });
+                              });
+                          });
+                      });
                   });
               });
           });

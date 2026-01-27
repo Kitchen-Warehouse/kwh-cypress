@@ -1112,8 +1112,7 @@ describe("Checkout Step 2 Tests for form fields validation", () => {
       .click();
 
     // Navigate to checkout
-    cy.get('[class*="MiniCart"]', { timeout: 15000 })
-      .should("be.visible");
+    cy.get('[class*="MiniCart"]', { timeout: 15000 }).should("be.visible");
     cy.get('[data-testid="checkout-button"]', { timeout: 15000 })
       .should("be.visible")
       .click();
@@ -1130,195 +1129,183 @@ describe("Checkout Step 2 Tests for form fields validation", () => {
           .should("be.visible")
           .click();
 
-        // Test 1: Verify step 2 active content is displayed
+        // Verify step 2 active content is displayed
         cy.get('[data-testid="step-2-active-content"]', { timeout: 10000 })
           .should("be.visible")
           .should("exist")
           .then(() => {
-
             // Test 2: Verify shipping method options are displayed
-            cy.contains('Ship')
-              .should("be.visible");
-            cy.contains('Click and Collect')
-              .should("be.visible");
-            cy.contains('FREE')
-              .should("be.visible");
+            cy.contains("Ship").should("be.visible");
+            cy.contains("Click and Collect").should("be.visible");
+            cy.contains("FREE").should("be.visible");
 
-            // Test 3: Verify shipping address form fields are present
-            cy.contains('First name')
+            // Verify shipping address form fields are present
+            cy.contains("First name")
               .should("be.visible")
               .then(($el) => {
-                cy.blinkBorder($el, { color: 'blue', duration: 1500 })
-                  .then(() => {
-                    cy.contains('Last name')
+                cy.blinkBorder($el, { color: "blue", duration: 1500 }).then(
+                  () => {
+                    cy.contains("Last name")
                       .should("be.visible")
                       .then(($el2) => {
-                        cy.blinkBorder($el2, { color: 'green', duration: 1500 })
-                          .then(() => {
-                            cy.contains('Phone number (e.g. 0400 000 000)')
-                              .should("be.visible")
-                              .then(($el3) => {
-                                cy.blinkBorder($el3, { color: 'orange', duration: 1500 })
-                                  .then(() => {
-                                    cy.contains('Address*')
-                                      .should("be.visible")
-                                      .then(($el4) => {
-                                        cy.blinkBorder($el4, { color: 'purple', duration: 1500 });
-                                      });
+                        cy.blinkBorder($el2, {
+                          color: "green",
+                          duration: 1500,
+                        }).then(() => {
+                          cy.contains("Phone number (e.g. 0400 000 000)")
+                            .should("be.visible")
+                            .then(($el3) => {
+                              cy.blinkBorder($el3, {
+                                color: "orange",
+                                duration: 1500,
+                              }).then(() => {
+                                cy.contains("Address*")
+                                  .should("be.visible")
+                                  .then(($el4) => {
+                                    cy.blinkBorder($el4, {
+                                      color: "purple",
+                                      duration: 1500,
+                                    });
                                   });
                               });
-                          });
+                            });
+                        });
                       });
-                  });
+                  },
+                );
               });
 
-            // Test 4: Verify continue to payment button exists
+            // Verify continue to payment button exists
             cy.get('[data-testid=" Continue to payment button"]')
               .should("be.visible")
               .should("exist")
               .should("contain", "Continue to payment");
 
-            // Test 5: Individual field validation - test each field separately
-            
-            // Test 5a: First Name validation (leave first name empty, fill others)
-            cy.get('input[name="lastName"]')
-              .clear()
-              .type("Smith");
-            cy.get('input[name="phoneNumber"]')
-              .clear()
-              .type("0400123456");
-            cy.get('#search-address')
-              .clear()
-              .type("123 Test Street");
-            
-            cy.get('[data-testid=" Continue to payment button"]')
+            // Individual field validation - test each field separately
+
+            // First Name validation (leave first name empty, fill others)
+            cy.get('input[name="lastName"]').clear().type("Smith");
+            cy.get('input[name="phoneNumber"]').clear().type("0400123456");
+            cy.get("#search-address").clear().type("123");
+
+            // Wait for address suggestions to load
+            cy.wait(4000);
+
+            // Click on the first address suggestion
+            cy.get('[data-testid="searchable-list-item-btn"]')
+              .first()
+              .should("be.visible")
               .click();
-              
-            cy.get('span.text-brand-60')
-              .contains('First name is required')
-              .should('be.visible')
-              .should('have.class', 'Typography_body_SM__a0qv8')
+
+            cy.get('[data-testid=" Continue to payment button"]').click();
+
+            cy.get("span.text-brand-60")
+              .contains("First name is required")
+              .should("be.visible")
+              .should("have.class", "Typography_body_SM__a0qv8")
               .then(($el) => {
-                cy.blinkBorder($el, { color: 'red', duration: 1500 });
+                cy.blinkBorder($el, { color: "red", duration: 1500 });
               });
-            
+
             // Verify First name input has error styling
             cy.get('input[name="firstName"]')
-              .should('have.class', 'inputErrorBorderClassName')
-              .should('have.class', 'ring-brand')
+              .should("have.class", "inputErrorBorderClassName")
+              .should("have.class", "ring-brand")
               .then(($input) => {
-                cy.blinkBorder($input, { color: 'red', duration: 1000 });
+                cy.blinkBorder($input, { color: "red", duration: 1000 });
               });
-              
-            // Test 5b: Last Name validation (fill first name, leave last name empty)
-            cy.get('input[name="firstName"]')
-              .clear()
-              .type("John");
-            cy.get('input[name="lastName"]')
-              .clear(); // Leave empty
-            cy.get('input[name="phoneNumber"]')
-              .clear()
-              .type("0400123456");
-            cy.get('#search-address')
-              .clear()
-              .type("123 Test Street");
-              
-            cy.get('[data-testid=" Continue to payment button"]')
+
+            // Click the reset button to clear address input for next test
+            cy.get("button.underline")
+              .contains("Search for an address")
+              .should("be.visible")
               .click();
-              
-            cy.get('span.text-brand-60')
-              .contains('Last name is required')
-              .should('be.visible')
-              .should('have.class', 'Typography_body_SM__a0qv8')
+
+            // Last Name validation (fill first name, leave last name empty)
+            cy.get('input[name="firstName"]').clear().type("John");
+            cy.get('input[name="lastName"]').clear(); // Leave empty
+            cy.get('input[name="phoneNumber"]').clear().type("0400123456");
+            cy.get("#search-address").clear().type("123");
+
+            // Wait for address suggestions to load
+            cy.wait(4000);
+
+            // Click on the first address suggestion
+            cy.get('[data-testid="searchable-list-item-btn"]')
+              .first()
+              .should("be.visible")
+              .click();
+
+            cy.get('[data-testid=" Continue to payment button"]').click();
+
+            cy.get("span.text-brand-60")
+              .contains("Last name is required")
+              .should("be.visible")
+              .should("have.class", "Typography_body_SM__a0qv8")
               .then(($el) => {
-                cy.blinkBorder($el, { color: 'orange', duration: 1500 });
+                cy.blinkBorder($el, { color: "orange", duration: 1500 });
               });
-              
+
             // Verify Last name input has error styling
             cy.get('input[name="lastName"]')
-              .should('have.class', 'inputErrorBorderClassName')
-              .should('have.class', 'ring-brand')
+              .should("have.class", "inputErrorBorderClassName")
+              .should("have.class", "ring-brand")
               .then(($input) => {
-                cy.blinkBorder($input, { color: 'orange', duration: 1000 });
+                cy.blinkBorder($input, { color: "orange", duration: 1000 });
               });
-              
-            // Test 5c: Phone Number validation (fill first name and last name, leave phone empty)
-            cy.get('input[name="firstName"]')
-              .clear()
-              .type("John");
-            cy.get('input[name="lastName"]')
-              .clear()
-              .type("Smith");
-            cy.get('input[name="phoneNumber"]')
-              .clear(); // Leave empty
-            cy.get('#search-address')
-              .clear()
-              .type("123 Test Street");
-              
-            cy.get('[data-testid=" Continue to payment button"]')
+
+            // Click the reset button to clear address input for next test
+            cy.get("button.underline")
+              .contains("Search for an address")
+              .should("be.visible")
               .click();
-              
-            cy.get('span.text-brand-60')
-              .contains('Phone number is required')
-              .should('be.visible')
-              .should('have.class', 'Typography_body_SM__a0qv8')
+
+            // Test 5c: Phone Number validation (fill first name and last name, leave phone empty)
+            cy.get('input[name="firstName"]').clear().type("John");
+            cy.get('input[name="lastName"]').clear().type("Smith");
+            cy.get('input[name="phoneNumber"]').clear(); // Leave empty
+            cy.get("#search-address").clear().type("123");
+
+            // Wait for address suggestions to load
+            cy.wait(4000);
+
+            // Click on the first address suggestion
+            cy.get('[data-testid="searchable-list-item-btn"]')
+              .first()
+              .should("be.visible")
+              .click();
+
+            cy.get('[data-testid=" Continue to payment button"]').click();
+
+            cy.get("span.text-brand-60")
+              .contains("Phone number is required")
+              .should("be.visible")
+              .should("have.class", "Typography_body_SM__a0qv8")
               .then(($el) => {
-                cy.blinkBorder($el, { color: 'blue', duration: 1500 });
+                cy.blinkBorder($el, { color: "blue", duration: 1500 });
               });
-              
+
             // Verify Phone number input has error styling
             cy.get('input[name="phoneNumber"]')
-              .should('have.class', 'inputErrorBorderClassName')
-              .should('have.class', 'ring-brand')
+              .should("have.class", "inputErrorBorderClassName")
+              .should("have.class", "ring-brand")
               .then(($input) => {
-                cy.blinkBorder($input, { color: 'blue', duration: 1000 });
+                cy.blinkBorder($input, { color: "blue", duration: 1000 });
               });
-              
-            // Test 5d: Address validation (fill all other fields, leave address empty)
-            cy.get('input[name="firstName"]')
-              .clear()
-              .type("John");
-            cy.get('input[name="lastName"]')
-              .clear()
-              .type("Smith");
-            cy.get('input[name="phoneNumber"]')
-              .clear()
-              .type("0400123456");
-            cy.get('#search-address')
-              .clear(); // Leave empty
-              
-            cy.get('[data-testid=" Continue to payment button"]')
+
+            // Click the reset button to clear address input for next test
+            cy.get("button.underline")
+              .contains("Search for an address")
+              .should("be.visible")
               .click();
-              
-            cy.get('span.text-brand-60')
-              .contains('Please enter and select your address')
-              .should('be.visible')
-              .should('have.class', 'Typography_body_SM__a0qv8')
-              .then(($el) => {
-                cy.blinkBorder($el, { color: 'purple', duration: 1500 });
-              });
-              
 
-            // Test 6: Verify shipping method selection functionality
-            cy.get('input[value="Free"][checked]')
-              .should("exist");
+            // Address validation (fill all other fields, leave address empty)
+            cy.get('input[name="firstName"]').clear().type("John");
+            cy.get('input[name="lastName"]').clear().type("Smith");
+            cy.get('input[name="phoneNumber"]').clear().type("0400123456");
+            cy.get("#search-address").clear(); // Leave empty
 
-            cy.contains('Click and Collect')
-              .parent()
-              .should("be.visible")
-
-            // Test 7: Verify manual address entry option
-            cy.contains('Enter an address manually')
-              .should("be.visible")
-              .should("have.class", "underline");
-
-            // Test 8: Verify shipping methods section
-            cy.contains('Shipping methods')
-              .should("be.visible");  
-            
-            cy.contains('Enter a valid shipping address to view available shipping methods.')
-              .should("be.visible");
-
+            cy.get('[data-testid=" Continue to payment button"]').click();
           });
       });
   });

@@ -4,7 +4,7 @@ describe("Add to Cart Test", () => {
     cy.visit(
       "https://staging.kitchenwarehouse.com.au/product/wolstead-series-acacia-wood-cutting-board-50x35cm",
     );
-    cy.wait(3000);
+      cy.wait(3000);
     // Click add to cart button
     cy.get('[data-testid="add-to-cart-or-preorder"]', { timeout: 15000 })
       .should("be.visible")
@@ -1092,6 +1092,182 @@ describe("Back to Cart Navigation Test", () => {
                       });
                   });
               });
+          });
+      });
+  });
+});
+
+
+describe("Checkout Step 2 Tests for form fields validation", () => {
+  it("should complete comprehensive Step 2 checkout validation in a single flow", () => {
+    // Navigate to step 2 by going through step 1 first
+    cy.visit(
+      "https://staging.kitchenwarehouse.com.au/product/wolstead-series-acacia-wood-cutting-board-50x35cm",
+    );
+    cy.wait(3000);
+
+    // Add item to cart
+    cy.get('[data-testid="add-to-cart-or-preorder"]', { timeout: 15000 })
+      .should("be.visible")
+      .click();
+
+    // Navigate to checkout
+    cy.get('[class*="MiniCart"]', { timeout: 15000 })
+      .should("be.visible");
+    cy.get('[data-testid="checkout-button"]', { timeout: 15000 })
+      .should("be.visible")
+      .click();
+
+    // Wait for checkout page to load
+    cy.url({ timeout: 10000 })
+      .should("include", "/checkout")
+      .then(() => {
+        // Fill step 1 email and continue to step 2
+        cy.get('input[type="email"][name="email"]', { timeout: 15000 })
+          .should("be.visible")
+          .type("test@example.com");
+        cy.get('[data-testid="continue-to-shipping-button"]')
+          .should("be.visible")
+          .click();
+
+        // Test 1: Verify step 2 active content is displayed
+        cy.get('[data-testid="step-2-active-content"]', { timeout: 10000 })
+          .should("be.visible")
+          .should("exist")
+          .then(() => {
+
+            // Test 2: Verify shipping method options are displayed
+            cy.contains('Ship')
+              .should("be.visible");
+            cy.contains('Click and Collect')
+              .should("be.visible");
+            cy.contains('FREE')
+              .should("be.visible");
+
+            // Test 3: Verify shipping address form fields are present
+            cy.contains('First name')
+              .should("be.visible")
+              .then(($el) => {
+                cy.blinkBorder($el, { color: 'blue', duration: 1500 })
+                  .then(() => {
+                    cy.contains('Last name')
+                      .should("be.visible")
+                      .then(($el2) => {
+                        cy.blinkBorder($el2, { color: 'green', duration: 1500 })
+                          .then(() => {
+                            cy.contains('Phone number (e.g. 0400 000 000)')
+                              .should("be.visible")
+                              .then(($el3) => {
+                                cy.blinkBorder($el3, { color: 'orange', duration: 1500 })
+                                  .then(() => {
+                                    cy.contains('Address*')
+                                      .should("be.visible")
+                                      .then(($el4) => {
+                                        cy.blinkBorder($el4, { color: 'purple', duration: 1500 });
+                                      });
+                                  });
+                              });
+                          });
+                      });
+                  });
+              });
+
+            // Test 4: Verify continue to payment button exists
+            cy.contains('Continue to payment')
+              .should("be.visible")
+              .should("exist");
+
+            // Test 5: Verify validation error appears when trying to continue without required fields
+            cy.contains('Continue to payment')
+              .click();
+
+            // Verify First name validation
+            cy.get('span.text-brand-60')
+              .contains('First name is required')
+              .should('be.visible')
+              .should('have.class', 'Typography_body_SM__a0qv8')
+              .then(($el) => {
+                cy.blinkBorder($el, { color: 'red', duration: 1500 })
+                  .then(() => {
+                    // Verify First name input has error styling
+                    cy.get('input[name="firstName"]')
+                      .should('have.class', 'inputErrorBorderClassName')
+                      .should('have.class', 'ring-brand')
+                      .then(($input) => {
+                        cy.blinkBorder($input, { color: 'red', duration: 1000 })
+                          .then(() => {
+                            // Verify Last name validation
+                            cy.get('span.text-brand-60')
+                              .contains('Last name is required')
+                              .should('be.visible')
+                              .should('have.class', 'Typography_body_SM__a0qv8')
+                              .then(($el2) => {
+                                cy.blinkBorder($el2, { color: 'orange', duration: 1500 })
+                                  .then(() => {
+                                    // Verify Last name input has error styling
+                                    cy.get('input[name="lastName"]')
+                                      .should('have.class', 'inputErrorBorderClassName')
+                                      .should('have.class', 'ring-brand')
+                                      .then(($input2) => {
+                                        cy.blinkBorder($input2, { color: 'orange', duration: 1000 })
+                                          .then(() => {
+                                            // Verify Phone number validation
+                                            cy.get('span.text-brand-60')
+                                              .contains('Phone number is required')
+                                              .should('be.visible')
+                                              .should('have.class', 'Typography_body_SM__a0qv8')
+                                              .then(($el3) => {
+                                                cy.blinkBorder($el3, { color: 'blue', duration: 1500 })
+                                                  .then(() => {
+                                                    // Verify Phone number input has error styling
+                                                    cy.get('input[name="phoneNumber"]')
+                                                      .should('have.class', 'inputErrorBorderClassName')
+                                                      .should('have.class', 'ring-brand')
+                                                      .then(($input3) => {
+                                                        cy.blinkBorder($input3, { color: 'blue', duration: 1000 })
+                                                          .then(() => {
+                                                            // Verify Address validation
+                                                            cy.get('span.text-brand-60')
+                                                              .contains('Please enter and select your address')
+                                                              .should('be.visible')
+                                                              .should('have.class', 'Typography_body_SM__a0qv8')
+                                                              .should('have.class', 'mt-2')
+                                                              .then(($el4) => {
+                                                                cy.blinkBorder($el4, { color: 'purple', duration: 1500 });
+                                                              });
+                                                          });
+                                                      });
+                                                  });
+                                              });
+                                          });
+                                      });
+                                  });
+                              });
+                          });
+                      });
+                  });
+              });
+
+            // Test 6: Verify shipping method selection functionality
+            cy.get('input[value="Free"][checked]')
+              .should("exist");
+
+            cy.contains('Click and Collect')
+              .parent()
+              .should("be.visible")
+
+            // Test 7: Verify manual address entry option
+            cy.contains('Enter an address manually')
+              .should("be.visible")
+              .should("have.class", "underline");
+
+            // Test 8: Verify shipping methods section
+            cy.contains('Shipping methods')
+              .should("be.visible");  
+            
+            cy.contains('Enter a valid shipping address to view available shipping methods.')
+              .should("be.visible");
+
           });
       });
   });

@@ -78,3 +78,55 @@ Cypress.Commands.add('waitForApi', (alias) => {
     expect(interception.response.statusCode).to.be.oneOf([200, 201, 204])
   })
 })
+
+// Custom command to add blinking border to elements during assertions
+Cypress.Commands.add('blinkBorder', (element, options = {}) => {
+  const {
+    color = 'red',
+    duration = 2000,
+    blinkSpeed = 300,
+    borderWidth = 3
+  } = options;
+
+  return cy.wrap(element).then(($el) => {
+    const originalStyle = $el.attr('style') || '';
+    const blinkBorderStyle = `${originalStyle} border: ${borderWidth}px solid ${color} !important; animation: blink-border ${blinkSpeed}ms infinite alternate !important;`;
+    
+    // Add CSS animation keyframes if not already present
+    cy.document().then((doc) => {
+      if (!doc.getElementById('blink-border-style')) {
+        const style = doc.createElement('style');
+        style.id = 'blink-border-style';
+        style.innerHTML = `
+          @keyframes blink-border {
+            0% { border-color: transparent !important; }
+            100% { border-color: ${color} !important; }
+          }
+        `;
+        doc.head.appendChild(style);
+      }
+    });
+
+    // Apply blinking border
+    cy.wrap($el)
+      .invoke('attr', 'style', blinkBorderStyle)
+      .wait(duration)
+      .invoke('attr', 'style', originalStyle);
+  });
+})
+
+// Custom command to highlight element with blinking border during assertions
+Cypress.Commands.add('highlightAssertion', (selector, assertionFn, options = {}) => {
+  return cy.get(selector, { timeout: options.timeout || 10000 })
+    .should('be.visible')
+    .then(($el) => {
+      // Start blinking border
+      cy.blinkBorder($el, options)
+        .then(() => {
+          // Execute the assertion function
+          if (typeof assertionFn === 'function') {
+            assertionFn(cy.wrap($el));
+          }
+        });
+    });
+})

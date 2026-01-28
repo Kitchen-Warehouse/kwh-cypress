@@ -1098,16 +1098,17 @@ describe("Back to Cart Navigation Test", () => {
 });
 
 
-describe("Checkout Step 2 Tests for form fields validation", () => {
+describe("Checkout Step 2 Tests for form fields validation and order placing with Afterpay", () => {
   it("should complete comprehensive Step 2 checkout validation in a single flow", () => {
     // Navigate to step 2 by going through step 1 first
     cy.visit(
       "https://staging.kitchenwarehouse.com.au/product/wolstead-series-acacia-wood-cutting-board-50x35cm",
     );
     cy.wait(3000);
-
+    cy.get(".mt-6 > .gap-2 > .group").should("be.visible").click().type("2");
+    cy.wait(5000);
     // Add item to cart
-    cy.get('[data-testid="add-to-cart-or-preorder"]', { timeout: 15000 })
+    cy.get('[data-testid="add-to-cart-or-preorder"]', {timeout: 15000} )
       .should("be.visible")
       .click();
 
@@ -1122,15 +1123,15 @@ describe("Checkout Step 2 Tests for form fields validation", () => {
       .should("include", "/checkout")
       .then(() => {
         // Fill step 1 email and continue to step 2
-        cy.get('input[type="email"][name="email"]', { timeout: 15000 })
+        cy.get('input[type="email"][name="email"]' )
           .should("be.visible")
-          .type("test@example.com");
+          .type("nrushimha@compose.co.in");
         cy.get('[data-testid="continue-to-shipping-button"]')
           .should("be.visible")
           .click();
 
         // Verify step 2 active content is displayed
-        cy.get('[data-testid="step-2-active-content"]', { timeout: 10000 })
+        cy.get('[data-testid="step-2-active-content"]')
           .should("be.visible")
           .should("exist")
           .then(() => {
@@ -1306,6 +1307,21 @@ describe("Checkout Step 2 Tests for form fields validation", () => {
             cy.get("#search-address").clear(); // Leave empty
 
             cy.get('[data-testid=" Continue to payment button"]').click();
+            cy.contains("Afterpay").click();
+            cy.wait(2000);
+
+            cy.contains("Place Order").should("be.visible").click();
+
+ // Handle Afterpay sandbox login on different origin
+    cy.origin('https://portal.sandbox.afterpay.com', () => {
+      cy.get('[data-testid="login-password-input"]').type("Devulapalli@123");
+      cy.get('[data-testid="login-password-button"]').click();
+      cy.wait(20000);
+      cy.get('[data-testid="summary-button"]').click();
+    });
+
+    cy.wait(15000);
+
           });
       });
   });

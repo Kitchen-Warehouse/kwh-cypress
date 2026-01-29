@@ -772,6 +772,7 @@ describe("Add to Cart Test", () => {
       });
   });
 });
+
 describe("Navigation Flow Test", () => {
   it("should navigate back to Step 1 with data retained when clicking edit button from Step 2", () => {
     // Visit product page and add item to cart
@@ -997,6 +998,7 @@ describe("Navigation Flow Test", () => {
       });
   });
 });
+
 describe("Back to Cart Navigation Test", () => {
   it("should display back to cart button and navigate to cart page when clicked", () => {
     // Visit product page and add item to cart
@@ -1096,7 +1098,6 @@ describe("Back to Cart Navigation Test", () => {
       });
   });
 });
-
 
 describe("Checkout Step 2 Tests for form fields validation and order placing with Afterpay", () => {
   it("should complete comprehensive Step 2 checkout validation in a single flow", () => {
@@ -1322,6 +1323,92 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
 
     cy.wait(15000);
 
+          });
+      });
+  });
+});
+
+describe("Checkout Step 2 Tests for form fields validation and order placing with Giftcard", () => {
+  it("should complete comprehensive Step 2 checkout validation in a single flow", () => {
+    // Navigate to step 2 by going through step 1 first
+    cy.visit(
+      "https://staging.kitchenwarehouse.com.au/product/bakemaster-silicone-square-collapsible-air-fryer-insert-21cm",
+    );
+    cy.wait(3000);
+    // Add item to cart
+    cy.get('[data-testid="add-to-cart-or-preorder"]', { timeout: 15000 })
+      .should("be.visible")
+      .click();
+
+    // Navigate to checkout
+    cy.get('[class*="MiniCart"]', { timeout: 15000 }).should("be.visible");
+    cy.get('[data-testid="checkout-button"]', { timeout: 15000 })
+      .should("be.visible")
+      .click();
+
+    // Wait for checkout page to load
+    cy.url({ timeout: 10000 })
+      .should("include", "/checkout")
+      .then(() => {
+        // Fill step 1 email and continue to step 2
+        cy.get('input[type="email"][name="email"]')
+          .should("be.visible")
+          .type("nrushimha@compose.co.in");
+        cy.get('[data-testid="continue-to-shipping-button"]')
+          .should("be.visible")
+          .click();
+
+        // Verify step 2 active content is displayed
+        cy.get('[data-testid="step-2-active-content"]')
+          .should("be.visible")
+          .should("exist")
+          .then(() => {
+            // Test 2: Verify shipping method options are displayed
+            cy.contains("Ship").should("be.visible");
+            cy.contains("Click and Collect").should("be.visible");
+            cy.contains("FREE").should("be.visible");
+
+            // Address validation (fill all other fields, leave address empty)
+            cy.get('input[name="firstName"]').clear().type("John");
+            cy.get('input[name="lastName"]').clear().type("Smith");
+            cy.get('input[name="phoneNumber"]').clear().type("0400123456");
+            cy.get("#search-address").clear().type("123");
+
+            // Wait for address suggestions to load
+            cy.wait(4000);
+
+            // Click on the first address suggestion
+            cy.get('[data-testid="searchable-list-item-btn"]')
+              .first()
+              .should("be.visible")
+              .click();
+            // Wait for address to be populated
+            cy.wait(4000);
+
+            cy.get('[data-testid=" Continue to payment button"]').click();
+
+            // Click on Gift Card payment option
+            cy.contains("Gift Card").should("be.visible").click();
+
+            // Wait for the gift card input field to appear
+            cy.wait(3000);
+
+            // Enter a sample 6-digit gift card code
+            cy.get('input[placeholder="Gift card code"]')
+              .should("be.visible")
+              .type("123456");
+            cy.wait(3000);
+
+            // Click the Apply button - look for it as a sibling in the flex container
+           cy.get('.Typography_body_SM__a0qv8 > .Button_button__xS0QI > [data-testid]').click({ force: true });
+
+            // Wait for processing
+            cy.wait(9000);
+
+            // Click on Place order CTA
+          cy.get('.review-button-wrapper > .Button_button__xS0QI').should("be.visible").click();
+
+            cy.wait(15000);
           });
       });
   });

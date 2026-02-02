@@ -4,7 +4,7 @@ describe("Add to Cart Test", () => {
     cy.visit(
       "https://staging.kitchenwarehouse.com.au/product/wolstead-series-acacia-wood-cutting-board-50x35cm",
     );
-      cy.wait(3000);
+    cy.wait(3000);
     // Click add to cart button
     cy.get('[data-testid="add-to-cart-or-preorder"]', { timeout: 15000 })
       .should("be.visible")
@@ -1083,7 +1083,7 @@ describe("Back to Cart Navigation Test", () => {
                                                   .should(
                                                     "not.include",
                                                     "/checkout",
-                                                  )
+                                                  );
                                               });
                                           });
                                         });
@@ -1109,7 +1109,7 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
     cy.get(".mt-6 > .gap-2 > .group").should("be.visible").click().type("2");
     cy.wait(5000);
     // Add item to cart
-    cy.get('[data-testid="add-to-cart-or-preorder"]', {timeout: 15000} )
+    cy.get('[data-testid="add-to-cart-or-preorder"]', { timeout: 15000 })
       .should("be.visible")
       .click();
 
@@ -1124,7 +1124,7 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
       .should("include", "/checkout")
       .then(() => {
         // Fill step 1 email and continue to step 2
-        cy.get('input[type="email"][name="email"]' )
+        cy.get('input[type="email"][name="email"]')
           .should("be.visible")
           .type("nrushimha@compose.co.in");
         cy.get('[data-testid="continue-to-shipping-button"]')
@@ -1313,16 +1313,17 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
 
             cy.contains("Place Order").should("be.visible").click();
 
- // Handle Afterpay sandbox login on different origin
-    cy.origin('https://portal.sandbox.afterpay.com', () => {
-      cy.get('[data-testid="login-password-input"]').type("Devulapalli@123");
-      cy.get('[data-testid="login-password-button"]').click();
-      cy.wait(20000);
-      cy.get('[data-testid="summary-button"]').click();
-    });
+            // Handle Afterpay sandbox login on different origin
+            cy.origin("https://portal.sandbox.afterpay.com", () => {
+              cy.get('[data-testid="login-password-input"]').type(
+                "Devulapalli@123",
+              );
+              cy.get('[data-testid="login-password-button"]').click();
+              cy.wait(20000);
+              cy.get('[data-testid="summary-button"]').click();
+            });
 
-    cy.wait(15000);
-
+            cy.wait(15000);
           });
       });
   });
@@ -1400,16 +1401,122 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
             cy.wait(3000);
 
             // Click the Apply button - look for it as a sibling in the flex container
-           cy.get('.Typography_body_SM__a0qv8 > .Button_button__xS0QI > [data-testid]').click({ force: true });
+            cy.get(
+              ".Typography_body_SM__a0qv8 > .Button_button__xS0QI > [data-testid]",
+            ).click({ force: true });
 
             // Wait for processing
             cy.wait(9000);
 
             // Click on Place order CTA
-          cy.get('.review-button-wrapper > .Button_button__xS0QI').should("be.visible").click();
+            cy.get(".review-button-wrapper > .Button_button__xS0QI")
+              .should("be.visible")
+              .click();
 
             cy.wait(15000);
           });
       });
+  });
+});
+
+describe("Checkout Step 2 Tests for form fields validation and order placing with Credit card", () => {
+  it("should complete comprehensive Step 2 checkout validation in a single flow", () => {
+    // Visit product page and add to cart
+    cy.visit(
+      "https://kwh-kitchenwarehouse.netlify.app/product/wolstead-pro-steel-5pc-triply-stainless-steel-cookware-set",
+    );
+
+    cy.wait(3000); // Wait for page and buttons to load
+
+    cy.get(".flex-1 > .Button_button__xS0QI").click({ scrollBehavior: false });
+    cy.wait(3000); // Wait for cart to update
+
+    // Navigate to checkout
+    cy.get('[class*="MiniCart"]', { timeout: 15000 }).should("be.visible");
+    cy.get('[data-testid="checkout-button"]', { timeout: 15000 })
+      .should("be.visible")
+      .click();
+
+    // Wait for checkout page to load
+    cy.url({ timeout: 10000 })
+      .should("include", "/checkout")
+      .then(() => {
+        // Fill step 1 email and continue to step 2
+        cy.get('input[type="email"][name="email"]')
+          .should("be.visible")
+          .type("nrushimha@compose.co.in");
+        cy.get('[data-testid="continue-to-shipping-button"]')
+          .should("be.visible")
+          .click();
+
+        // Verify step 2 active content is displayed
+        cy.get('[data-testid="step-2-active-content"]')
+          .should("be.visible")
+          .should("exist")
+          .then(() => {
+            // Test 2: Verify shipping method options are displayed
+            cy.contains("Ship").should("be.visible");
+            cy.contains("Click and Collect").should("be.visible");
+            cy.contains("FREE").should("be.visible");
+
+            // Address validation (fill all other fields, leave address empty)
+            cy.get('input[name="firstName"]').clear().type("John");
+            cy.get('input[name="lastName"]').clear().type("Smith");
+            cy.get('input[name="phoneNumber"]').clear().type("0400123456");
+            cy.get("#search-address").clear().type("123");
+
+            // Wait for address suggestions to load
+            cy.wait(4000);
+
+            // Click on the first address suggestion
+            cy.get('[data-testid="searchable-list-item-btn"]')
+              .first()
+              .should("be.visible")
+              .click();
+            // Wait for address to be populated
+            cy.wait(4000);
+
+            cy.get('[data-testid=" Continue to payment button"]').click();
+          });
+      });
+    cy.wait(6000);
+
+    // Choose Credit Card as payment method
+    Cypress.Commands.add("getIframeBody", (iframeSelector) => {
+      return cy
+        .get(iframeSelector)
+        .its("0.contentDocument.body")
+        .should("not.be.empty")
+        .then(cy.wrap);
+    });
+    const enterTextInIframe = (iframeSelector, inputSelector, text) => {
+      cy.get(iframeSelector)
+        .should("be.visible")
+        .then(($iframe) => {
+          const $body = $iframe.contents().find("body");
+          cy.wrap($body)
+            .find(inputSelector)
+            .should("be.visible")
+            .type(text, { force: true });
+        });
+    };
+    // cy.get('[for="«rg»"] > .border-solid').should('be.visible')
+
+    enterTextInIframe(
+      'iframe[title="secure payment field"]',
+      'input[name="number"]',
+      "4111111111111111",
+    );
+
+    cy.get('[name="expiry-date"]').type("06/27");
+
+    enterTextInIframe(
+      'iframe[title="secure payment field"]',
+      'input[name="securityCode"]',
+      "123",
+    );
+    cy.contains("Place Order").click();
+
+    cy.wait(15000);
   });
 });

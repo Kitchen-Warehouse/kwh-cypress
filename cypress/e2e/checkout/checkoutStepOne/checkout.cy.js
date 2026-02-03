@@ -1099,8 +1099,9 @@ describe("Back to Cart Navigation Test", () => {
   });
 });
 
-describe("Checkout Step 2 Tests for form fields validation and order placing with Afterpay", () => {
-  it("should complete comprehensive Step 2 checkout validation in a single flow", () => {
+// Test cases for order placing with Afterpay
+describe("Checkout flow Tests order placing with Afterpay", () => {
+  it("should complete comprehensive checkout validation in a single flow", () => {
     // Navigate to step 2 by going through step 1 first
     cy.visit(
       "https://staging.kitchenwarehouse.com.au/product/wolstead-series-acacia-wood-cutting-board-50x35cm",
@@ -1123,7 +1124,7 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
     cy.url({ timeout: 10000 })
       .should("include", "/checkout")
       .then(() => {
-        // Fill step 1 email and continue to step 2
+        // Fill step 1(customer) email and continue to step 2
         cy.get('input[type="email"][name="email"]')
           .should("be.visible")
           .type("nrushimha@compose.co.in");
@@ -1131,7 +1132,7 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
           .should("be.visible")
           .click();
 
-        // Verify step 2 active content is displayed
+        // Verify step 2(Shipping) content is displayed
         cy.get('[data-testid="step-2-active-content"]')
           .should("be.visible")
           .should("exist")
@@ -1310,7 +1311,8 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
             cy.get('[data-testid=" Continue to payment button"]').click();
             cy.contains("Afterpay").click();
             cy.wait(2000);
-
+            
+           // Verify step 3(Payment) content is displayed
             cy.contains("Place Order").should("be.visible").click();
 
             // Handle Afterpay sandbox login on different origin
@@ -1329,8 +1331,9 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
   });
 });
 
-describe("Checkout Step 2 Tests for form fields validation and order placing with Giftcard", () => {
-  it("should complete comprehensive Step 2 checkout validation in a single flow", () => {
+// Test cases for order placing with Giftcard
+describe("Checkout flow Tests order placing with Giftcard", () => {
+  it("should complete comprehensive checkout validation in a single flow", () => {
     // Navigate to step 2 by going through step 1 first
     cy.visit(
       "https://staging.kitchenwarehouse.com.au/product/bakemaster-silicone-square-collapsible-air-fryer-insert-21cm",
@@ -1351,6 +1354,7 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
     cy.url({ timeout: 10000 })
       .should("include", "/checkout")
       .then(() => {
+        // Verify step 1(customer) content is displayed
         // Fill step 1 email and continue to step 2
         cy.get('input[type="email"][name="email"]')
           .should("be.visible")
@@ -1359,7 +1363,7 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
           .should("be.visible")
           .click();
 
-        // Verify step 2 active content is displayed
+        // Verify step 2(Shipping) content is displayed
         cy.get('[data-testid="step-2-active-content"]')
           .should("be.visible")
           .should("exist")
@@ -1388,6 +1392,7 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
 
             cy.get('[data-testid=" Continue to payment button"]').click();
 
+           // Verify step 3(Payment) content is displayed
             // Click on Gift Card payment option
             cy.contains("Gift Card").should("be.visible").click();
 
@@ -1419,8 +1424,9 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
   });
 });
 
-describe("Checkout Step 2 Tests for form fields validation and order placing with Credit card", () => {
-  it("should complete comprehensive Step 2 checkout validation in a single flow", () => {
+// Test cases for order placing with Credit Card
+describe("Checkout flow Tests order placing with Credit card", () => {
+  it("should complete comprehensive checkout validation in a single flow", () => {
     // Visit product page and add to cart
     cy.visit(
       "https://kwh-kitchenwarehouse.netlify.app/product/wolstead-pro-steel-5pc-triply-stainless-steel-cookware-set",
@@ -1441,6 +1447,7 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
     cy.url({ timeout: 10000 })
       .should("include", "/checkout")
       .then(() => {
+        // Verify step 1(customer) content is displayed
         // Fill step 1 email and continue to step 2
         cy.get('input[type="email"][name="email"]')
           .should("be.visible")
@@ -1449,12 +1456,12 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
           .should("be.visible")
           .click();
 
-        // Verify step 2 active content is displayed
+        // Verify step 2(Shipping) content is displayed
         cy.get('[data-testid="step-2-active-content"]')
           .should("be.visible")
           .should("exist")
           .then(() => {
-            // Test 2: Verify shipping method options are displayed
+            // Verify shipping method options are displayed
             cy.contains("Ship").should("be.visible");
             cy.contains("Click and Collect").should("be.visible");
             cy.contains("FREE").should("be.visible");
@@ -1481,6 +1488,7 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
       });
     cy.wait(6000);
 
+    // Verify step 3(Payment) content is displayed
     // Choose Credit Card as payment method
     Cypress.Commands.add("getIframeBody", (iframeSelector) => {
       return cy
@@ -1500,8 +1508,7 @@ describe("Checkout Step 2 Tests for form fields validation and order placing wit
             .type(text, { force: true });
         });
     };
-    // cy.get('[for="«rg»"] > .border-solid').should('be.visible')
-
+// Enter credit card details inside iframes
     enterTextInIframe(
       'iframe[title="secure payment field"]',
       'input[name="number"]',

@@ -2,6 +2,8 @@ const { defineConfig } = require('cypress')
 
 module.exports = defineConfig({
   e2e: {
+    // Disable Chrome web security for cross-origin testing
+    chromeWebSecurity: false,
     // Dynamic base URL - can be overridden by environment variable
     baseUrl: process.env.CYPRESS_BASE_URL || 'https://staging.kitchenwarehouse.com.au/',
     

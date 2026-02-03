@@ -4,7 +4,7 @@ describe("Add to Cart Test", () => {
     cy.visit(
       "https://staging.kitchenwarehouse.com.au/product/wolstead-series-acacia-wood-cutting-board-50x35cm",
     );
-      cy.wait(3000);
+    cy.wait(3000);
     // Click add to cart button
     cy.get('[data-testid="add-to-cart-or-preorder"]', { timeout: 15000 })
       .should("be.visible")
@@ -772,6 +772,7 @@ describe("Add to Cart Test", () => {
       });
   });
 });
+
 describe("Navigation Flow Test", () => {
   it("should navigate back to Step 1 with data retained when clicking edit button from Step 2", () => {
     // Visit product page and add item to cart
@@ -997,6 +998,7 @@ describe("Navigation Flow Test", () => {
       });
   });
 });
+
 describe("Back to Cart Navigation Test", () => {
   it("should display back to cart button and navigate to cart page when clicked", () => {
     // Visit product page and add item to cart
@@ -1081,7 +1083,7 @@ describe("Back to Cart Navigation Test", () => {
                                                   .should(
                                                     "not.include",
                                                     "/checkout",
-                                                  )
+                                                  );
                                               });
                                           });
                                         });
@@ -1097,23 +1099,23 @@ describe("Back to Cart Navigation Test", () => {
   });
 });
 
-
-describe("Checkout Step 2 Tests for form fields validation", () => {
-  it("should complete comprehensive Step 2 checkout validation in a single flow", () => {
+// Test cases for order placing with Afterpay
+describe("Checkout flow Tests order placing with Afterpay", () => {
+  it("should complete comprehensive checkout validation in a single flow", () => {
     // Navigate to step 2 by going through step 1 first
     cy.visit(
       "https://staging.kitchenwarehouse.com.au/product/wolstead-series-acacia-wood-cutting-board-50x35cm",
     );
     cy.wait(3000);
-
+    cy.get(".mt-6 > .gap-2 > .group").should("be.visible").click().type("2");
+    cy.wait(5000);
     // Add item to cart
     cy.get('[data-testid="add-to-cart-or-preorder"]', { timeout: 15000 })
       .should("be.visible")
       .click();
 
     // Navigate to checkout
-    cy.get('[class*="MiniCart"]', { timeout: 15000 })
-      .should("be.visible");
+    cy.get('[class*="MiniCart"]', { timeout: 15000 }).should("be.visible");
     cy.get('[data-testid="checkout-button"]', { timeout: 15000 })
       .should("be.visible")
       .click();
@@ -1122,153 +1124,406 @@ describe("Checkout Step 2 Tests for form fields validation", () => {
     cy.url({ timeout: 10000 })
       .should("include", "/checkout")
       .then(() => {
-        // Fill step 1 email and continue to step 2
-        cy.get('input[type="email"][name="email"]', { timeout: 15000 })
+        // Fill step 1(customer) email and continue to step 2
+        cy.get('input[type="email"][name="email"]')
           .should("be.visible")
-          .type("test@example.com");
+          .type("nrushimha@compose.co.in");
         cy.get('[data-testid="continue-to-shipping-button"]')
           .should("be.visible")
           .click();
 
-        // Test 1: Verify step 2 active content is displayed
-        cy.get('[data-testid="step-2-active-content"]', { timeout: 10000 })
+        // Verify step 2(Shipping) content is displayed
+        cy.get('[data-testid="step-2-active-content"]')
           .should("be.visible")
           .should("exist")
           .then(() => {
-
             // Test 2: Verify shipping method options are displayed
-            cy.contains('Ship')
-              .should("be.visible");
-            cy.contains('Click and Collect')
-              .should("be.visible");
-            cy.contains('FREE')
-              .should("be.visible");
+            cy.contains("Ship").should("be.visible");
+            cy.contains("Click and Collect").should("be.visible");
+            cy.contains("FREE").should("be.visible");
 
-            // Test 3: Verify shipping address form fields are present
-            cy.contains('First name')
+            // Verify shipping address form fields are present
+            cy.contains("First name")
               .should("be.visible")
               .then(($el) => {
-                cy.blinkBorder($el, { color: 'blue', duration: 1500 })
-                  .then(() => {
-                    cy.contains('Last name')
+                cy.blinkBorder($el, { color: "blue", duration: 1500 }).then(
+                  () => {
+                    cy.contains("Last name")
                       .should("be.visible")
                       .then(($el2) => {
-                        cy.blinkBorder($el2, { color: 'green', duration: 1500 })
-                          .then(() => {
-                            cy.contains('Phone number (e.g. 0400 000 000)')
-                              .should("be.visible")
-                              .then(($el3) => {
-                                cy.blinkBorder($el3, { color: 'orange', duration: 1500 })
-                                  .then(() => {
-                                    cy.contains('Address*')
-                                      .should("be.visible")
-                                      .then(($el4) => {
-                                        cy.blinkBorder($el4, { color: 'purple', duration: 1500 });
-                                      });
+                        cy.blinkBorder($el2, {
+                          color: "green",
+                          duration: 1500,
+                        }).then(() => {
+                          cy.contains("Phone number (e.g. 0400 000 000)")
+                            .should("be.visible")
+                            .then(($el3) => {
+                              cy.blinkBorder($el3, {
+                                color: "orange",
+                                duration: 1500,
+                              }).then(() => {
+                                cy.contains("Address*")
+                                  .should("be.visible")
+                                  .then(($el4) => {
+                                    cy.blinkBorder($el4, {
+                                      color: "purple",
+                                      duration: 1500,
+                                    });
                                   });
                               });
-                          });
+                            });
+                        });
                       });
-                  });
+                  },
+                );
               });
 
-            // Test 4: Verify continue to payment button exists
-            cy.contains('Continue to payment')
+            // Verify continue to payment button exists
+            cy.get('[data-testid=" Continue to payment button"]')
               .should("be.visible")
-              .should("exist");
+              .should("exist")
+              .should("contain", "Continue to payment");
 
-            // Test 5: Verify validation error appears when trying to continue without required fields
-            cy.contains('Continue to payment')
+            // Individual field validation - test each field separately
+
+            // First Name validation (leave first name empty, fill others)
+            cy.get('input[name="lastName"]').clear().type("Smith");
+            cy.get('input[name="phoneNumber"]').clear().type("0400123456");
+            cy.get("#search-address").clear().type("123");
+
+            // Wait for address suggestions to load
+            cy.wait(4000);
+
+            // Click on the first address suggestion
+            cy.get('[data-testid="searchable-list-item-btn"]')
+              .first()
+              .should("be.visible")
               .click();
 
-            // Verify First name validation
-            cy.get('span.text-brand-60')
-              .contains('First name is required')
-              .should('be.visible')
-              .should('have.class', 'Typography_body_SM__a0qv8')
+            cy.get('[data-testid=" Continue to payment button"]').click();
+
+            cy.get("span.text-brand-60")
+              .contains("First name is required")
+              .should("be.visible")
+              .should("have.class", "Typography_body_SM__a0qv8")
               .then(($el) => {
-                cy.blinkBorder($el, { color: 'red', duration: 1500 })
-                  .then(() => {
-                    // Verify First name input has error styling
-                    cy.get('input[name="firstName"]')
-                      .should('have.class', 'inputErrorBorderClassName')
-                      .should('have.class', 'ring-brand')
-                      .then(($input) => {
-                        cy.blinkBorder($input, { color: 'red', duration: 1000 })
-                          .then(() => {
-                            // Verify Last name validation
-                            cy.get('span.text-brand-60')
-                              .contains('Last name is required')
-                              .should('be.visible')
-                              .should('have.class', 'Typography_body_SM__a0qv8')
-                              .then(($el2) => {
-                                cy.blinkBorder($el2, { color: 'orange', duration: 1500 })
-                                  .then(() => {
-                                    // Verify Last name input has error styling
-                                    cy.get('input[name="lastName"]')
-                                      .should('have.class', 'inputErrorBorderClassName')
-                                      .should('have.class', 'ring-brand')
-                                      .then(($input2) => {
-                                        cy.blinkBorder($input2, { color: 'orange', duration: 1000 })
-                                          .then(() => {
-                                            // Verify Phone number validation
-                                            cy.get('span.text-brand-60')
-                                              .contains('Phone number is required')
-                                              .should('be.visible')
-                                              .should('have.class', 'Typography_body_SM__a0qv8')
-                                              .then(($el3) => {
-                                                cy.blinkBorder($el3, { color: 'blue', duration: 1500 })
-                                                  .then(() => {
-                                                    // Verify Phone number input has error styling
-                                                    cy.get('input[name="phoneNumber"]')
-                                                      .should('have.class', 'inputErrorBorderClassName')
-                                                      .should('have.class', 'ring-brand')
-                                                      .then(($input3) => {
-                                                        cy.blinkBorder($input3, { color: 'blue', duration: 1000 })
-                                                          .then(() => {
-                                                            // Verify Address validation
-                                                            cy.get('span.text-brand-60')
-                                                              .contains('Please enter and select your address')
-                                                              .should('be.visible')
-                                                              .should('have.class', 'Typography_body_SM__a0qv8')
-                                                              .should('have.class', 'mt-2')
-                                                              .then(($el4) => {
-                                                                cy.blinkBorder($el4, { color: 'purple', duration: 1500 });
-                                                              });
-                                                          });
-                                                      });
-                                                  });
-                                              });
-                                          });
-                                      });
-                                  });
-                              });
-                          });
-                      });
-                  });
+                cy.blinkBorder($el, { color: "red", duration: 1500 });
               });
 
-            // Test 6: Verify shipping method selection functionality
-            cy.get('input[value="Free"][checked]')
-              .should("exist");
+            // Verify First name input has error styling
+            cy.get('input[name="firstName"]')
+              .should("have.class", "inputErrorBorderClassName")
+              .should("have.class", "ring-brand")
+              .then(($input) => {
+                cy.blinkBorder($input, { color: "red", duration: 1000 });
+              });
 
-            cy.contains('Click and Collect')
-              .parent()
+            // Click the reset button to clear address input for next test
+            cy.get("button.underline")
+              .contains("Search for an address")
               .should("be.visible")
+              .click();
 
-            // Test 7: Verify manual address entry option
-            cy.contains('Enter an address manually')
+            // Last Name validation (fill first name, leave last name empty)
+            cy.get('input[name="firstName"]').clear().type("John");
+            cy.get('input[name="lastName"]').clear(); // Leave empty
+            cy.get('input[name="phoneNumber"]').clear().type("0400123456");
+            cy.get("#search-address").clear().type("123");
+
+            // Wait for address suggestions to load
+            cy.wait(4000);
+
+            // Click on the first address suggestion
+            cy.get('[data-testid="searchable-list-item-btn"]')
+              .first()
               .should("be.visible")
-              .should("have.class", "underline");
+              .click();
 
-            // Test 8: Verify shipping methods section
-            cy.contains('Shipping methods')
-              .should("be.visible");  
+            cy.get('[data-testid=" Continue to payment button"]').click();
+
+            cy.get("span.text-brand-60")
+              .contains("Last name is required")
+              .should("be.visible")
+              .should("have.class", "Typography_body_SM__a0qv8")
+              .then(($el) => {
+                cy.blinkBorder($el, { color: "orange", duration: 1500 });
+              });
+
+            // Verify Last name input has error styling
+            cy.get('input[name="lastName"]')
+              .should("have.class", "inputErrorBorderClassName")
+              .should("have.class", "ring-brand")
+              .then(($input) => {
+                cy.blinkBorder($input, { color: "orange", duration: 1000 });
+              });
+
+            // Click the reset button to clear address input for next test
+            cy.get("button.underline")
+              .contains("Search for an address")
+              .should("be.visible")
+              .click();
+
+            // Test 5c: Phone Number validation (fill first name and last name, leave phone empty)
+            cy.get('input[name="firstName"]').clear().type("John");
+            cy.get('input[name="lastName"]').clear().type("Smith");
+            cy.get('input[name="phoneNumber"]').clear(); // Leave empty
+            cy.get("#search-address").clear().type("123");
+
+            // Wait for address suggestions to load
+            cy.wait(4000);
+
+            // Click on the first address suggestion
+            cy.get('[data-testid="searchable-list-item-btn"]')
+              .first()
+              .should("be.visible")
+              .click();
+
+            cy.get('[data-testid=" Continue to payment button"]').click();
+
+            cy.get("span.text-brand-60")
+              .contains("Phone number is required")
+              .should("be.visible")
+              .should("have.class", "Typography_body_SM__a0qv8")
+              .then(($el) => {
+                cy.blinkBorder($el, { color: "blue", duration: 1500 });
+              });
+
+            // Verify Phone number input has error styling
+            cy.get('input[name="phoneNumber"]')
+              .should("have.class", "inputErrorBorderClassName")
+              .should("have.class", "ring-brand")
+              .then(($input) => {
+                cy.blinkBorder($input, { color: "blue", duration: 1000 });
+              });
+
+            // Click the reset button to clear address input for next test
+            cy.get("button.underline")
+              .contains("Search for an address")
+              .should("be.visible")
+              .click();
+
+            // Address validation (fill all other fields, leave address empty)
+            cy.get('input[name="firstName"]').clear().type("John");
+            cy.get('input[name="lastName"]').clear().type("Smith");
+            cy.get('input[name="phoneNumber"]').clear().type("0400123456");
+            cy.get("#search-address").clear(); // Leave empty
+
+            cy.get('[data-testid=" Continue to payment button"]').click();
+            cy.contains("Afterpay").click();
+            cy.wait(2000);
             
-            cy.contains('Enter a valid shipping address to view available shipping methods.')
-              .should("be.visible");
+           // Verify step 3(Payment) content is displayed
+            cy.contains("Place Order").should("be.visible").click();
 
+            // Handle Afterpay sandbox login on different origin
+            cy.origin("https://portal.sandbox.afterpay.com", () => {
+              cy.get('[data-testid="login-password-input"]').type(
+                "Devulapalli@123",
+              );
+              cy.get('[data-testid="login-password-button"]').click();
+              cy.wait(20000);
+              cy.get('[data-testid="summary-button"]').click();
+            });
+
+            cy.wait(15000);
           });
       });
+  });
+});
+
+// Test cases for order placing with Giftcard
+describe("Checkout flow Tests order placing with Giftcard", () => {
+  it("should complete comprehensive checkout validation in a single flow", () => {
+    // Navigate to step 2 by going through step 1 first
+    cy.visit(
+      "https://staging.kitchenwarehouse.com.au/product/bakemaster-silicone-square-collapsible-air-fryer-insert-21cm",
+    );
+    cy.wait(3000);
+    // Add item to cart
+    cy.get('[data-testid="add-to-cart-or-preorder"]', { timeout: 15000 })
+      .should("be.visible")
+      .click();
+
+    // Navigate to checkout
+    cy.get('[class*="MiniCart"]', { timeout: 15000 }).should("be.visible");
+    cy.get('[data-testid="checkout-button"]', { timeout: 15000 })
+      .should("be.visible")
+      .click();
+
+    // Wait for checkout page to load
+    cy.url({ timeout: 10000 })
+      .should("include", "/checkout")
+      .then(() => {
+        // Verify step 1(customer) content is displayed
+        // Fill step 1 email and continue to step 2
+        cy.get('input[type="email"][name="email"]')
+          .should("be.visible")
+          .type("nrushimha@compose.co.in");
+        cy.get('[data-testid="continue-to-shipping-button"]')
+          .should("be.visible")
+          .click();
+
+        // Verify step 2(Shipping) content is displayed
+        cy.get('[data-testid="step-2-active-content"]')
+          .should("be.visible")
+          .should("exist")
+          .then(() => {
+            // Test 2: Verify shipping method options are displayed
+            cy.contains("Ship").should("be.visible");
+            cy.contains("Click and Collect").should("be.visible");
+            cy.contains("FREE").should("be.visible");
+
+            // Address validation (fill all other fields, leave address empty)
+            cy.get('input[name="firstName"]').clear().type("John");
+            cy.get('input[name="lastName"]').clear().type("Smith");
+            cy.get('input[name="phoneNumber"]').clear().type("0400123456");
+            cy.get("#search-address").clear().type("123");
+
+            // Wait for address suggestions to load
+            cy.wait(4000);
+
+            // Click on the first address suggestion
+            cy.get('[data-testid="searchable-list-item-btn"]')
+              .first()
+              .should("be.visible")
+              .click();
+            // Wait for address to be populated
+            cy.wait(4000);
+
+            cy.get('[data-testid=" Continue to payment button"]').click();
+
+           // Verify step 3(Payment) content is displayed
+            // Click on Gift Card payment option
+            cy.contains("Gift Card").should("be.visible").click();
+
+            // Wait for the gift card input field to appear
+            cy.wait(3000);
+
+            // Enter a sample 6-digit gift card code
+            cy.get('input[placeholder="Gift card code"]')
+              .should("be.visible")
+              .type("123456");
+            cy.wait(3000);
+
+            // Click the Apply button - look for it as a sibling in the flex container
+            cy.get(
+              ".Typography_body_SM__a0qv8 > .Button_button__xS0QI > [data-testid]",
+            ).click({ force: true });
+
+            // Wait for processing
+            cy.wait(9000);
+
+            // Click on Place order CTA
+            cy.get(".review-button-wrapper > .Button_button__xS0QI")
+              .should("be.visible")
+              .click();
+
+            cy.wait(15000);
+          });
+      });
+  });
+});
+
+// Test cases for order placing with Credit Card
+describe("Checkout flow Tests order placing with Credit card", () => {
+  it("should complete comprehensive checkout validation in a single flow", () => {
+    // Visit product page and add to cart
+    cy.visit(
+      "https://kwh-kitchenwarehouse.netlify.app/product/wolstead-pro-steel-5pc-triply-stainless-steel-cookware-set",
+    );
+
+    cy.wait(3000); // Wait for page and buttons to load
+
+    cy.get(".flex-1 > .Button_button__xS0QI").click({ scrollBehavior: false });
+    cy.wait(3000); // Wait for cart to update
+
+    // Navigate to checkout
+    cy.get('[class*="MiniCart"]', { timeout: 15000 }).should("be.visible");
+    cy.get('[data-testid="checkout-button"]', { timeout: 15000 })
+      .should("be.visible")
+      .click();
+
+    // Wait for checkout page to load
+    cy.url({ timeout: 10000 })
+      .should("include", "/checkout")
+      .then(() => {
+        // Verify step 1(customer) content is displayed
+        // Fill step 1 email and continue to step 2
+        cy.get('input[type="email"][name="email"]')
+          .should("be.visible")
+          .type("nrushimha@compose.co.in");
+        cy.get('[data-testid="continue-to-shipping-button"]')
+          .should("be.visible")
+          .click();
+
+        // Verify step 2(Shipping) content is displayed
+        cy.get('[data-testid="step-2-active-content"]')
+          .should("be.visible")
+          .should("exist")
+          .then(() => {
+            // Verify shipping method options are displayed
+            cy.contains("Ship").should("be.visible");
+            cy.contains("Click and Collect").should("be.visible");
+            cy.contains("FREE").should("be.visible");
+
+            // Address validation (fill all other fields, leave address empty)
+            cy.get('input[name="firstName"]').clear().type("John");
+            cy.get('input[name="lastName"]').clear().type("Smith");
+            cy.get('input[name="phoneNumber"]').clear().type("0400123456");
+            cy.get("#search-address").clear().type("123");
+
+            // Wait for address suggestions to load
+            cy.wait(4000);
+
+            // Click on the first address suggestion
+            cy.get('[data-testid="searchable-list-item-btn"]')
+              .first()
+              .should("be.visible")
+              .click();
+            // Wait for address to be populated
+            cy.wait(4000);
+
+            cy.get('[data-testid=" Continue to payment button"]').click();
+          });
+      });
+    cy.wait(6000);
+
+    // Verify step 3(Payment) content is displayed
+    // Choose Credit Card as payment method
+    Cypress.Commands.add("getIframeBody", (iframeSelector) => {
+      return cy
+        .get(iframeSelector)
+        .its("0.contentDocument.body")
+        .should("not.be.empty")
+        .then(cy.wrap);
+    });
+    const enterTextInIframe = (iframeSelector, inputSelector, text) => {
+      cy.get(iframeSelector)
+        .should("be.visible")
+        .then(($iframe) => {
+          const $body = $iframe.contents().find("body");
+          cy.wrap($body)
+            .find(inputSelector)
+            .should("be.visible")
+            .type(text, { force: true });
+        });
+    };
+// Enter credit card details inside iframes
+    enterTextInIframe(
+      'iframe[title="secure payment field"]',
+      'input[name="number"]',
+      "4111111111111111",
+    );
+
+    cy.get('[name="expiry-date"]').type("06/27");
+
+    enterTextInIframe(
+      'iframe[title="secure payment field"]',
+      'input[name="securityCode"]',
+      "123",
+    );
+    cy.contains("Place Order").click();
+
+    cy.wait(15000);
   });
 });
